@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v618</title> 
+  <title>FRH PRO formulaire  - v619</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2117,13 +2117,13 @@ pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, fieldX2 + 1, fieldY4 + lineHeight - 2);
 
-
-     // -------------------------------
+      // -------------------------------
 // PAGE 2 : Tableau "Détails par mois (année 1)"
 // -------------------------------
 pdf.addPage();
 pdf.setFontSize(12);
 pdf.text("Détails par mois (année 1)", pageWidth / 2, 60, { align: "center" });
+
 const monthlyTableEl = document.getElementById("preconisationMonthlyTable");
 if (monthlyTableEl) {
   // Création d'un PDF temporaire pour obtenir la hauteur du tableau
@@ -2149,7 +2149,7 @@ if (monthlyTableEl) {
       12: { cellWidth: 12 }
     }
   });
-  const tableHeight = tempPdf.lastAutoTable.finalY;
+  const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
   // Décaler le tableau de 20 mm vers le haut
   const newStartY = (pageHeight - tableHeight) / 2 - 20;
   pdf.autoTable({
@@ -2178,7 +2178,7 @@ if (monthlyTableEl) {
   pdf.text("Tableau Détails par mois non disponible", 10, 30);
 }
 
-// Récupération des totaux depuis le tableau "Détails par mois (année 1)"
+// Récupération des totaux depuis le tfoot du tableau HTML, si présent
 let totalConso = "-";
 let totalProd  = "-";
 let totalAuto  = "-";
@@ -2189,7 +2189,7 @@ if (monthlyTableEl) {
   if (tfoot) {
     const lastRow = tfoot.querySelector("tr");
     if (lastRow) {
-      // Adapter les indices ci-dessous selon l'ordre réel des colonnes
+      // Adaptez ces indices si nécessaire.
       const cellConso = lastRow.querySelector("td:nth-child(1)");
       if (cellConso) totalConso = cellConso.textContent.trim();
       const cellProd = lastRow.querySelector("td:nth-child(2)");
@@ -2198,7 +2198,7 @@ if (monthlyTableEl) {
       if (cellAuto) totalAuto = cellAuto.textContent.trim();
       const cellRev = lastRow.querySelector("td:nth-child(4)");
       if (cellRev) totalRev = cellRev.textContent.trim();
-      // La 11ème cellule pour "% Auto prod" que nous utilisons pour "Economies réalisés avec la centrale %"
+      // Pour "% Auto prod" (colonne 11) que nous utilisons pour "Economies réalisés avec la centrale %"
       const cellEcon = lastRow.querySelector("td:nth-child(11)");
       if (cellEcon) totalEcon = cellEcon.textContent.trim();
     }
@@ -2213,7 +2213,7 @@ const titleY = lastTableY + 15; // 15 mm sous le tableau
 pdf.setFontSize(14);
 pdf.text("Informations sur la production", pageWidth / 2, titleY, { align: "center" });
 
-// Cadre principal similaire à la page 1
+// Définition du cadre principal (même design que pour la page 1)
 const containerX = 15;
 const containerY = titleY + 5; // 5 mm sous le titre
 const containerWidth = pageWidth - 30;
@@ -2223,7 +2223,7 @@ pdf.setDrawColor(150);
 pdf.setFillColor(230,230,230);
 pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
 
-// Paramètres pour les champs à l'intérieur du cadre
+// Paramètres pour les champs internes
 const boxPadding = 2;
 const lineHeight = 6;
 const fieldX = containerX + boxPadding;
@@ -2255,6 +2255,9 @@ const fieldY3 = fieldY2 + lineHeight + 2;
 pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
 pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
+
+
+
 
       // -------------------------------
       // PAGE 3 : Graphique sans légende
