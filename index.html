@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v612</title> 
+  <title>FRH PRO formulaire  - v613</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2034,10 +2034,10 @@
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
 
-      // -------------------------------
-      // PAGE 1 : Capture de carte
-      // -------------------------------
-   pdf.setFontSize(16);
+// -------------------------------
+// PAGE 1 : Capture de carte
+// -------------------------------
+pdf.setFontSize(16);
 pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
@@ -2068,14 +2068,11 @@ pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, pageWidt
 
 // Troisième ligne : Orientation et Productible
 pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, 15, detailsY + 14);
-// Récupérer la valeur du productible
-pdf.text("Productible kWh/kWc: " + document.getElementById("productible").value, pageWidth / 2, detailsY + 14);
+// Nettoyer la valeur du productible pour remplacer les espaces spéciaux par des espaces normaux
+let prodStr = document.getElementById("productible").value;
+prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
+pdf.text("Productible kWh/kWc: " + prodStr, pageWidth / 2, detailsY + 14);
 
-
-// Quatrième ligne : Puissance préconisée et Nombre de modules
-pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, 15, detailsY + 21);
-pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, pageWidth / 2, detailsY + 21);
-  
       // -------------------------------
       // PAGE 2 : Tableau "Détails par mois (année 1)"
       // -------------------------------
