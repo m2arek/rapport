@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v600</title> 
+  <title>FRH PRO formulaire  - v601</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2038,15 +2038,18 @@
       // PAGE 1 : Capture de carte
       // -------------------------------
       pdf.setFontSize(16);
-      pdf.text("Rapport Photovoltaïque", pageWidth / 2, 60, { align: "center" });
-      if (mapCaptureDataURL) {
-        const imgWidth = pageWidth - 30;
-        const imgHeight = imgWidth * 0.6;
-        const yPos = (pageHeight - imgHeight) / 2;
-        pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
-      } else {
-        pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
-      }
+pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
+pdf.setFontSize(12);
+const companyName = document.getElementById("companyName")?.value || "";
+pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
+if (mapCaptureDataURL) {
+  const imgWidth = pageWidth - 30;
+  const imgHeight = imgWidth * 0.6;
+  const yPos = (pageHeight - imgHeight) / 2;
+  pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
+} else {
+  pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
+}
       
       // -------------------------------
       // PAGE 2 : Tableau "Détails par mois (année 1)"
