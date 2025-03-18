@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v704</title> 
+  <title>FRH PRO formulaire  - v705</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2029,8 +2029,9 @@
      * FONCTION DE GÉNÉRATION DU RAPPORT PDF (5 pages) AVEC FUSION DU TEMPLATE
      ***************************************************/
   async function generatePdfReport() {
-  // Demande à l'utilisateur : 1 pour Préconisation Sélection, 2 pour Préconisation Standard
+  // Demande à l'utilisateur de choisir la version du rapport
   let choix = prompt("Tapez 1 pour Préconisation Sélection, 2 pour Préconisation Standard", "2");
+  console.log("Choix saisi :", choix);
   let reportType;
   if (choix === "1") {
     reportType = "selection";
@@ -2039,8 +2040,9 @@
   } else {
     reportType = "standard";
   }
-  
-  // Définition des identifiants en fonction du choix
+  console.log("Report type :", reportType);
+
+  // Affectation des id des éléments en fonction du choix
   let monthlyTableId, projectionTableId, chartId;
   if (reportType === "selection") {
     monthlyTableId = "preconisationMonthlyTableForced";
@@ -2051,6 +2053,9 @@
     projectionTableId = "preconisationTable";
     chartId = "monthlyBarChart";
   }
+  
+  // ... puis le reste de votre code de génération du PDF ...
+
   
   // Reste de la fonction (pages 1 à 5, fusion avec template, etc.)
   const { jsPDF } = window.jspdf;
