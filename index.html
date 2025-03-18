@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v705</title> 
+  <title>FRH PRO formulaire  - v706</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2129,13 +2129,23 @@
   prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
   pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
   
-  const fieldY4 = fieldY3 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, fieldX + 1, fieldY4 + lineHeight - 2);
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, fieldX2 + 1, fieldY4 + lineHeight - 2);
+  // Ligne 4 : Puissance préconisée et Nombre de modules en deux colonnes
+const fieldY4 = fieldY3 + lineHeight + 2;
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+// Choix de la donnée en fonction du reportType ("selection" ou "standard")
+const puissanceRecoVal = (reportType === "selection")
+  ? document.getElementById("puissanceRecoForced").textContent
+  : document.getElementById("puissanceReco").textContent;
+pdf.text("Puissance préconisée Kwc: " + puissanceRecoVal, fieldX + 1, fieldY4 + lineHeight - 2);
+
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+const nombreModulesVal = (reportType === "selection")
+  ? document.getElementById("nombreModulesForced").textContent
+  : document.getElementById("nombreModules").textContent;
+pdf.text("Nombre de modules: " + nombreModulesVal, fieldX2 + 1, fieldY4 + lineHeight - 2);
+
   
   // -------------------------------
   // PAGE 2 : Tableau "Détails par mois (année 1)" et Cadre "Informations sur la production"
