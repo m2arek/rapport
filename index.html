@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v713</title> 
+  <title>FRH PRO formulaire  - v714</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2024,8 +2024,7 @@
       locale: "fr",
       dateFormat: "d/m/Y"
     });
-
-   async function generatePdfReport() {
+async function generatePdfReport() {
   // Demande à l'utilisateur de choisir la version du rapport
   let choix = prompt("Tapez 1 pour Préconisation Sélection, 2 pour Préconisation Standard", "2");
   console.log("Choix saisi :", choix);
@@ -2050,7 +2049,7 @@
     projectionTableId = "preconisationTable";
     chartId = "monthlyBarChart";
   }
-
+  
   // Initialisation du PDF
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
@@ -2069,9 +2068,8 @@
   if (mapCaptureDataURL) {
     imgWidth = pageWidth - 30;
     imgHeight = imgWidth * 0.6;
-    // Pour positionner le bloc d'infos immédiatement sous le nom de la compagnie,
-    // on redescend l'image (on augmente yPos)
-    yPos = (pageHeight - imgHeight) / 2; // on retire le décalage négatif
+    // Pour redescendre l'image, on ajoute 20 mm
+    yPos = (pageHeight - imgHeight) / 2 + 20;
     pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
   } else {
     yPos = pageHeight / 2;
@@ -2079,17 +2077,16 @@
     pdf.text("Aucune capture de carte disponible", pageWidth / 2, yPos, { align: "center" });
   }
   
-  // Pour la page 1, le bloc "Informations sur l'installation" doit apparaître sous le nom de la compagnie.
-  // On le positionne donc immédiatement sous l'image.
+  // Le bloc "Informations sur l'installation" est positionné immédiatement sous l'image.
   const detailsY = yPos + imgHeight + 10; // 10 mm sous l'image
-  const infoTitleY = detailsY - 5; // titre du bloc placé juste au-dessus du conteneur
+  const infoTitleY = detailsY - 5; // le titre du bloc placé juste au-dessus du conteneur
   pdf.setFontSize(14);
   pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
   
   const containerX = 15;
-  const containerY = detailsY; // le conteneur débute à detailsY
+  const containerY = detailsY; // début du conteneur
   const containerWidth = pageWidth - 30;
-  const containerHeight = 34;
+  const containerHeight = 34;  // hauteur pour 4 lignes
   pdf.setLineWidth(0.5);
   pdf.setDrawColor(150);
   pdf.setFillColor(230,230,230);
@@ -2146,9 +2143,8 @@
   {
     pdf.addPage();
     pdf.setFontSize(12);
-    // Ici, on souhaite que le bloc "Détails par mois" apparaisse sous le titre
-    // et que le tableau soit décalé vers le bas (on ajoute un offset)
-    pdf.text("Détails par mois (année 1)", pageWidth / 2, 60 + 20, { align: "center" });
+    // Pour la page 2, on souhaite décaler le titre du tableau vers le bas de 40 mm
+    pdf.text("Détails par mois (année 1)", pageWidth / 2, 60 + 40, { align: "center" });
   
     const monthlyTableEl = document.getElementById(monthlyTableId);
     if (monthlyTableEl) {
@@ -2175,8 +2171,8 @@
         }
       });
       const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
-      // Décaler le tableau de 20 mm vers le bas (ajout de 20mm)
-      const newStartY = (pageHeight - tableHeight) / 2 - 20 + 20;
+      // Ici, on décale le tableau vers le bas de 20 mm en ajoutant 20
+      const newStartY = (pageHeight - tableHeight) / 2 + 20;
       pdf.autoTable({
         html: monthlyTableEl,
         startY: newStartY,
@@ -2205,9 +2201,9 @@
   
     let totalConso = "-";
     let totalProd  = "-";
-    let totalAuto  = "-";
-    let totalRev   = "-";
-    let totalEcon  = "-";
+    let totalAuto = "-";
+    let totalRev = "-";
+    let totalEcon = "-";
     if (monthlyTableEl) {
       const tfoot = monthlyTableEl.querySelector("tfoot");
       if (tfoot) {
@@ -2227,7 +2223,7 @@
       }
     }
   
-    // Bloc "Informations sur la production" : positionné directement sous le titre "Détails par mois (année 1)"
+    // Bloc "Informations sur la production" sous le titre "Détails par mois (année 1)"
     const lastTableY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
     const infoProdTitleY = lastTableY + 15;
     pdf.setFontSize(14);
@@ -2289,7 +2285,130 @@
     }
   }
   if (chartImage) {
-    // Utilisation de dimensions fixes (à adapter si nécessaire)
+    const chartHeightPx = 300; 
+    const chartHeight = chartHeightPx * 0.264583;
+    const chartWidth = pageWidth - 30;
+    const yPosChart = (pageHeight - chartHeight) / 2;
+    pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
+  } else {
+    pdf.text("Graphique non disponible", 10, 30);
+  }
+  
+  /* ===============================
+     PAGE 4 : Tableau "Projection sur 20 ans" et Bloc "Synthèse des résultats"
+     =============================== */
+  {
+    pdf.addPage();
+    pdf.setFontSize(14);
+    // Déplacer le titre "Projection sur 20 ans" vers le bas de 20 mm
+    pdf.text("Projection sur 20 ans", pageWidth / 2, 60 + 20, { align: "center" });
+    const projectionTableEl = document.getElementById(projectionTableId);
+    if (projectionTableEl) {
+      const tempPdf2 = new jsPDF("p", "mm", "a4");
+      tempPdf2.autoTable({
+        html: projectionTableEl,
+        startY: 0,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
+      });
+      const projTableHeight = tempPdf2.lastAutoTable ? tempPdf2.lastAutoTable.finalY : 0;
+      // Décaler le tableau vers le bas de 20 mm
+      const newStartY2 = (pageHeight - projTableHeight) / 2 + 20;
+      pdf.autoTable({
+        html: projectionTableEl,
+        startY: newStartY2,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
+      });
+    } else {
+      pdf.text("Tableau Projection sur 20 ans non disponible", 10, 30);
+    }
+    
+    // Bloc "Synthèse des résultats" : positionné 20 mm sous la fin du tableau Projection
+    const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
+    const synthTitleY = projEndY + 20;
+    pdf.setFontSize(14);
+    pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
+    
+    // Définir le conteneur pour 3 lignes
+    const synthContainerX = 15;
+    const synthContainerY = synthTitleY + 5;
+    const synthContainerWidth = pageWidth - 30;
+    const synthContainerHeight = 26;  // 3 lignes de 8 mm + 2 mm supplémentaires
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(150);
+    pdf.setFillColor(230,230,230);
+    pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
+    
+    const synthBoxPadding = 2;
+    const synthLineHeight = 6;
+    const synthFieldX = synthContainerX + synthBoxPadding;
+    const synthFieldWidthHalf = (synthContainerWidth - 3 * synthBoxPadding) / 2;
+    
+    // ----- Première ligne -----
+    const synthRow1Y = synthContainerY + synthBoxPadding;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    pdf.setFontSize(10);
+    const annualIncrease = document.getElementById("annualPriceIncrease").value;
+    pdf.text("Augmentation annuelle du prix de l'électricité (%): " + annualIncrease, synthFieldX + 1, synthRow1Y + synthLineHeight - 2);
+    
+    const synthFieldX2 = synthFieldX + synthFieldWidthHalf + synthBoxPadding;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX2, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    const tarifRachat = document.getElementById("tarifRachat").value;
+    pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 1, synthRow1Y + synthLineHeight - 2);
+    
+    // ----- Deuxième ligne -----
+    const synthRow2Y = synthRow1Y + synthLineHeight + 2;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    const totalEconomies = document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-";
+    pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
+    
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX2, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    let primeValue = (reportType === "selection")
+      ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
+      : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
+    primeValue = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
+    pdf.text("Prime à l'autoconsommation: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
+    
+    // ----- Troisième ligne -----
+    const synthRow3Y = synthRow2Y + synthLineHeight + 2;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    let coutNet = (reportType === "selection")
+      ? (document.getElementById("coutReelInstallationForced") ? document.getElementById("coutReelInstallationForced").textContent.trim() : "-")
+      : (document.getElementById("coutReelInstallation") ? document.getElementById("coutReelInstallation").textContent.trim() : "-");
+    coutNet = String(coutNet).replace(/[\u00A0\u202F]/g, " ");
+    pdf.text("Cout net de la centrale: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
+    
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(synthFieldX2, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+    const roiVal = (reportType === "selection")
+      ? (document.getElementById("roiResultForced") ? document.getElementById("roiResultForced").textContent.trim() : "-")
+      : (document.getElementById("roiResult") ? document.getElementById("roiResult").textContent.trim() : "-");
+    pdf.text("Retour sur investissement années: " + roiVal, synthFieldX2 + 1, synthRow3Y + synthLineHeight - 2);
+  }
+  
+  /* ===============================
+     PAGE 3 : Graphique sans légende
+     =============================== */
+  pdf.addPage();
+  pdf.setFontSize(14);
+  pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
+  let chartImage = "";
+  if (reportType === "selection") {
+    if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
+      chartImage = monthlyBarChartForced.toBase64Image();
+    }
+  } else {
+    if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
+      chartImage = monthlyBarChart.toBase64Image();
+    }
+  }
+  if (chartImage) {
     const chartHeightPx = 300; 
     const chartHeight = chartHeightPx * 0.264583;
     const chartWidth = pageWidth - 30;
@@ -2376,6 +2495,7 @@
     });
 }
 
+   
 
   </script>
 </body>
