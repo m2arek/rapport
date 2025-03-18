@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v706</title> 
+  <title>FRH PRO formulaire  - v707</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2309,6 +2309,7 @@ if (chartImage) {
 }
 
   
+ {
   // -------------------------------
   // PAGE 4 : Tableau "Projection sur 20 ans"
   // -------------------------------
@@ -2324,7 +2325,7 @@ if (chartImage) {
       styles: { fontSize: 8, cellPadding: 2 },
       headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
     });
-    const projTableHeight = tempPdf2.lastAutoTable.finalY;
+    const projTableHeight = tempPdf2.lastAutoTable ? tempPdf2.lastAutoTable.finalY : 0;
     const newStartY2 = (pageHeight - projTableHeight) / 2;
     pdf.autoTable({
       html: projectionTableEl,
@@ -2335,6 +2336,47 @@ if (chartImage) {
   } else {
     pdf.text("Tableau Projection sur 20 ans non disponible", 10, 30);
   }
+
+  // -------------------------------
+  // Ajout du bloc "Synthèse des résultats"
+  // -------------------------------
+  // Positionner le bloc 20 mm sous la fin du tableau Projection
+  const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
+  const synthTitleY = projEndY + 20; // 20 mm sous le tableau
+  pdf.setFontSize(14);
+  pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
+
+  // Dessiner le cadre en dessous du titre (5 mm sous le titre)
+  const synthContainerY = synthTitleY + 5;
+  const synthContainerX = 15;
+  const synthContainerWidth = pageWidth - 30;
+  const synthContainerHeight = 8;  // Hauteur pour une ligne (vous pouvez l'ajuster)
+  pdf.setLineWidth(0.5);
+  pdf.setDrawColor(150);
+  pdf.setFillColor(230,230,230);
+  pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
+
+  // Paramètres pour les champs internes du cadre
+  const synthBoxPadding = 2;
+  const synthLineHeight = 6;
+  const synthFieldX = synthContainerX + synthBoxPadding;
+  const synthFieldWidthHalf = (synthContainerWidth - 3 * synthBoxPadding) / 2;
+
+  // Champ 1 : "Augmentation annuelle du prix de l'électricité (%) :"
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(synthFieldX, synthContainerY + synthBoxPadding, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+  pdf.setFontSize(10);
+  const annualIncrease = document.getElementById("annualPriceIncrease").value;
+  pdf.text("Augmentation annuelle du prix de l'électricité (%): " + annualIncrease, synthFieldX + 1, synthContainerY + synthBoxPadding + synthLineHeight - 2);
+
+  // Champ 2 : "Tarif de rachat du surplus (€/kWh):"
+  const synthFieldX2 = synthFieldX + synthFieldWidthHalf + synthBoxPadding;
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(synthFieldX2, synthContainerY + synthBoxPadding, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+  const tarifRachat = document.getElementById("tarifRachat").value;
+  pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 1, synthContainerY + synthBoxPadding + synthLineHeight - 2);
+}
+
   
   // -------------------------------
   // PAGE 5 : Tableau "Plan de trésorerie (Annuel)"
