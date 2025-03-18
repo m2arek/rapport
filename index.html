@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v603</title> 
+  <title>FRH PRO formulaire  - v604</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2050,7 +2050,13 @@ if (mapCaptureDataURL) {
 } else {
   pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
 }
-      
+  // Ajout des informations d'installation sous l'image (PAGE 1)
+const detailsY = yPos + imgHeight + 10; // Ajustez cet offset selon vos besoins
+pdf.setFontSize(16);
+pdf.text("Adresse: " + document.getElementById("address").value, 15, detailsY);
+pdf.text("Latitude: " + document.getElementById("latitudeIrr").value + "    Longitude: " + document.getElementById("longitudeIrr").value, 15, detailsY + 7);
+pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value + "    Productible kWh/kWc: " + document.getElementById("productible").value, 15, detailsY + 14);
+pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent + "    Nombre de modules: " + document.getElementById("nombreModules").textContent, 15, detailsY + 21);    
       // -------------------------------
       // PAGE 2 : Tableau "Détails par mois (année 1)"
       // -------------------------------
