@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v608</title> 
+  <title>FRH PRO formulaire  - v609</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2068,7 +2068,8 @@ pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, pageWidt
 
 // Troisième ligne : Orientation et Productible
 pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, 15, detailsY + 14);
-pdf.text("Productible kWh/kWc: " + Number(document.getElementById("productible").value).toLocaleString("fr-FR"), pageWidth / 2, detailsY + 14);
+pdf.text("Productible kWh/kWc: " + Number(document.getElementById("productible").value.replace(/\s/g, "")).toLocaleString("fr-FR"), pageWidth / 2, detailsY + 14);
+
 
 // Quatrième ligne : Puissance préconisée et Nombre de modules
 pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, 15, detailsY + 21);
