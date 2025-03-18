@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v605</title> 
+  <title>FRH PRO formulaire  - v606</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2037,13 +2037,12 @@
       // -------------------------------
       // PAGE 1 : Capture de carte
       // -------------------------------
-    pdf.setFontSize(16);
+   pdf.setFontSize(16);
 pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
-pdf.setFontSize(16);
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
 
-let yPos, imgWidth, imgHeight;  // Déclaration en dehors du bloc if
+let yPos, imgWidth, imgHeight;  // Déclaration des variables en dehors du bloc if
 
 if (mapCaptureDataURL) {
   imgWidth = pageWidth - 30;
@@ -2051,19 +2050,29 @@ if (mapCaptureDataURL) {
   yPos = (pageHeight - imgHeight) / 2 - 20;
   pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
 } else {
-  // Définir des valeurs par défaut si aucune image n'est fournie
   yPos = pageHeight / 2;
   imgHeight = 0;
   pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
 }
 
-// Ajout des informations d'installation sous l'image (PAGE 1)
-const detailsY = yPos + imgHeight + 10; // Ajustez cet offset selon vos besoins
-pdf.setFontSize(16);
+// Ajout des informations d'installation sous l'image en deux colonnes avec une police réduite
+const detailsY = yPos + imgHeight + 10; // Position de départ
+pdf.setFontSize(10);
+
+// Première ligne : Adresse
 pdf.text("Adresse: " + document.getElementById("address").value, 15, detailsY);
-pdf.text("Latitude: " + document.getElementById("latitudeIrr").value + "    Longitude: " + document.getElementById("longitudeIrr").value, 15, detailsY + 7);
-pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value + "    Productible kWh/kWc: " + document.getElementById("productible").value, 15, detailsY + 14);
-pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent + "    Nombre de modules: " + document.getElementById("nombreModules").textContent, 15, detailsY + 21);
+
+// Deuxième ligne : Latitude et Longitude
+pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, 15, detailsY + 7);
+pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, pageWidth / 2, detailsY + 7);
+
+// Troisième ligne : Orientation et Productible
+pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, 15, detailsY + 14);
+pdf.text("Productible kWh/kWc: " + document.getElementById("productible").value, pageWidth / 2, detailsY + 14);
+
+// Quatrième ligne : Puissance préconisée et Nombre de modules
+pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, 15, detailsY + 21);
+pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, pageWidth / 2, detailsY + 21);
   
       // -------------------------------
       // PAGE 2 : Tableau "Détails par mois (année 1)"
