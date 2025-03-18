@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v709</title> 
+  <title>FRH PRO formulaire  - v710</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2388,7 +2388,7 @@ if (chartImage) {
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX2, synthSecondLineY, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
   // Choisir la prime selon le reportType
-  const primeValue = (reportType === "selection")
+  let primeValue = (reportType === "selection")
     ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
     : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
   // Nettoyer la valeur pour remplacer les espaces insécables et étroits par des espaces normaux
