@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v703</title> 
+  <title>FRH PRO formulaire  - v704</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2261,22 +2261,38 @@
   }
   
   // -------------------------------
-  // PAGE 3 : Graphique sans légende
-  // -------------------------------
-  pdf.addPage();
-  pdf.setFontSize(14);
-  pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
-  const chartCanvas = document.getElementById(chartId);
-  if (chartCanvas) {
-    const chartImage = chartCanvas.toBase64Image();
-    const chartHeightPx = chartCanvas.height;
-    const chartHeight = chartHeightPx * 0.264583;
-    const chartWidth = pageWidth - 30;
-    const yPosChart = (pageHeight - chartHeight) / 2;
-    pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
-  } else {
-    pdf.text("Graphique non disponible", 10, 30);
+// PAGE 3 : Graphique sans légende
+// -------------------------------
+pdf.addPage();
+pdf.setFontSize(14);
+pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
+
+// Récupération de l'image du graphique en fonction du type choisi
+let chartImage = "";
+if (reportType === "selection") {
+  if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
+    chartImage = monthlyBarChartForced.toBase64Image();
   }
+} else {
+  if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
+    chartImage = monthlyBarChart.toBase64Image();
+  }
+}
+
+if (chartImage) {
+  // On peut aussi obtenir le canvas via toDataURL si nécessaire :
+  // const chartImage = document.getElementById(chartId).toDataURL("image/png");
+  const chartCanvas = document.createElement("canvas"); // Création d'un canvas temporaire pour les dimensions
+  // Ici, nous utilisons des dimensions fixes, vous pouvez les adapter si besoin
+  const chartHeightPx = 300; 
+  const chartHeight = chartHeightPx * 0.264583; // conversion px -> mm (approximative)
+  const chartWidth = pageWidth - 30;
+  const yPosChart = (pageHeight - chartHeight) / 2;
+  pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
+} else {
+  pdf.text("Graphique non disponible", 10, 30);
+}
+
   
   // -------------------------------
   // PAGE 4 : Tableau "Projection sur 20 ans"
