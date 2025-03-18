@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v614</title> 
+  <title>FRH PRO formulaire  - v615</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2035,6 +2035,7 @@
       const pageHeight = pdf.internal.pageSize.getHeight();
 
 // -------------------------------
+// -------------------------------
 // PAGE 1 : Capture de carte
 // -------------------------------
 pdf.setFontSize(16);
@@ -2042,8 +2043,7 @@ pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
 
-let yPos, imgWidth, imgHeight;  // Déclaration des variables en dehors du bloc if
-
+let yPos, imgWidth, imgHeight;  // Variables déclarées pour l'image
 if (mapCaptureDataURL) {
   imgWidth = pageWidth - 30;
   imgHeight = imgWidth * 0.6;
@@ -2055,27 +2055,68 @@ if (mapCaptureDataURL) {
   pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
 }
 
-// Ajout des informations d'installation sous l'image en deux colonnes avec une police réduite
-const detailsY = yPos + imgHeight + 10; // Position de départ
-pdf.setFontSize(12);
+// Définir la position de départ pour le bloc d'informations
+const detailsY = yPos + imgHeight + 10;
 
-// Première ligne : Adresse
-pdf.text("Adresse: " + document.getElementById("address").value, 15, detailsY);
+// -----------------
+// Dessin du cadre principal
+// -----------------
+const containerX = 15;
+const containerY = detailsY - 5;
+const containerWidth = pageWidth - 30;
+const containerHeight = 34;  // hauteur totale pour 4 lignes avec interlignes
+pdf.setLineWidth(0.5);
+pdf.setDrawColor(150); // Gris pour le contour
+pdf.setFillColor(230,230,230); // Fond gris clair
+pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
 
-// Deuxième ligne : Latitude et Longitude
-pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, 15, detailsY + 7);
-pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, pageWidth / 2, detailsY + 7);
+// Paramètres pour les encadrés individuels
+const boxPadding = 2;
+const lineHeight = 6;
+const fieldX = containerX + boxPadding;
+const fieldWidthFull = containerWidth - 2 * boxPadding;
+const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2; // pour deux colonnes
 
-// Troisième ligne : Orientation et Productible
-pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, 15, detailsY + 14);
+// -----------------
+// Ligne 1 : Adresse sur toute la largeur
+// -----------------
+const fieldY1 = containerY + boxPadding;
+pdf.setFillColor(255,255,255); // Fond blanc pour le champ
+pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
+pdf.setFontSize(10);
+pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
+
+// -----------------
+// Ligne 2 : Latitude et Longitude (deux colonnes)
+// -----------------
+const fieldY2 = fieldY1 + lineHeight + 2;
+pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
+const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
+
+// -----------------
+// Ligne 3 : Orientation et Productible (deux colonnes)
+// -----------------
+const fieldY3 = fieldY2 + lineHeight + 2;
+pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
+pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
 // Nettoyer la valeur du productible pour remplacer les espaces spéciaux par des espaces normaux
 let prodStr = document.getElementById("productible").value;
 prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
-pdf.text("Productible kWh/kWc: " + prodStr, pageWidth / 2, detailsY + 14);
+pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
 
-      // Quatrième ligne : Puissance préconisée et Nombre de modules
-pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, 15, detailsY + 21);
-pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, pageWidth / 2, detailsY + 21);
+// -----------------
+// Ligne 4 : Puissance préconisée et Nombre de modules (deux colonnes)
+// -----------------
+const fieldY4 = fieldY3 + lineHeight + 2;
+pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, fieldX + 1, fieldY4 + lineHeight - 2);
+pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, fieldX2 + 1, fieldY4 + lineHeight - 2);
+
 
       // -------------------------------
       // PAGE 2 : Tableau "Détails par mois (année 1)"
