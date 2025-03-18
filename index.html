@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v702</title> 
+  <title>FRH PRO formulaire  - v703</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2028,7 +2028,7 @@
     /***************************************************
      * FONCTION DE GÉNÉRATION DU RAPPORT PDF (5 pages) AVEC FUSION DU TEMPLATE
      ***************************************************/
-   async function generatePdfReport() {
+  async function generatePdfReport() {
   // Demande à l'utilisateur : 1 pour Préconisation Sélection, 2 pour Préconisation Standard
   let choix = prompt("Tapez 1 pour Préconisation Sélection, 2 pour Préconisation Standard", "2");
   let reportType;
@@ -2038,7 +2038,9 @@
     reportType = "standard";
   } else {
     reportType = "standard";
-      }
+  }
+  
+  // Définition des identifiants en fonction du choix
   let monthlyTableId, projectionTableId, chartId;
   if (reportType === "selection") {
     monthlyTableId = "preconisationMonthlyTableForced";
@@ -2049,21 +2051,22 @@
     projectionTableId = "preconisationTable";
     chartId = "monthlyBarChart";
   }
-
+  
+  // Reste de la fonction (pages 1 à 5, fusion avec template, etc.)
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
   // -------------------------------
-  // PAGE 1 : Capture de carte
+  // PAGE 1 : Capture de carte et Informations sur l'installation
   // -------------------------------
   pdf.setFontSize(16);
   pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
   const companyName = document.getElementById("companyName")?.value || "";
   pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
-
-  let yPos, imgWidth, imgHeight;  // Variables pour l'image
+  
+  let yPos, imgWidth, imgHeight;
   if (mapCaptureDataURL) {
     imgWidth = pageWidth - 30;
     imgHeight = imgWidth * 0.6;
@@ -2074,39 +2077,34 @@
     imgHeight = 0;
     pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
   }
-
+  
   // Décalage de 15 mm vers le bas pour le bloc d'informations
-  const detailsY = yPos + imgHeight + 25; // décalage augmenté de 15 mm (anciennement +10)
-  // Titre du bloc d'infos (5 mm au-dessus du cadre)
+  const detailsY = yPos + imgHeight + 25;
   const infoTitleY = yPos + imgHeight + 15;
   pdf.setFontSize(14);
   pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
-
-  // Cadre principal pour les infos (design similaire à la page 2 ci-après)
+  
   const containerX = 15;
   const containerY = detailsY - 5;
   const containerWidth = pageWidth - 30;
-  const containerHeight = 34;  // 4 lignes (modifiable)
+  const containerHeight = 34;
   pdf.setLineWidth(0.5);
   pdf.setDrawColor(150);
   pdf.setFillColor(230,230,230);
   pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
-
-  // Paramètres pour les champs internes
+  
   const boxPadding = 2;
   const lineHeight = 6;
   const fieldX = containerX + boxPadding;
   const fieldWidthFull = containerWidth - 2 * boxPadding;
   const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
-
-  // Ligne 1 : Adresse sur toute la largeur
+  
   const fieldY1 = containerY + boxPadding;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
   pdf.setFontSize(10);
   pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
-
-  // Ligne 2 : Latitude et Longitude en deux colonnes
+  
   const fieldY2 = fieldY1 + lineHeight + 2;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
@@ -2115,8 +2113,7 @@
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
   pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
-
-  // Ligne 3 : Orientation et Productible en deux colonnes
+  
   const fieldY3 = fieldY2 + lineHeight + 2;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
@@ -2126,8 +2123,7 @@
   let prodStr = document.getElementById("productible").value;
   prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
   pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
-
-  // Ligne 4 : Puissance préconisée et Nombre de modules en deux colonnes
+  
   const fieldY4 = fieldY3 + lineHeight + 2;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
@@ -2135,147 +2131,135 @@
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
   pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, fieldX2 + 1, fieldY4 + lineHeight - 2);
-
+  
+  // -------------------------------
+  // PAGE 2 : Tableau "Détails par mois (année 1)" et Cadre "Informations sur la production"
   // -------------------------------
   {
-  // -------------------------------
-  // PAGE 2 : Tableau "Détails par mois (année 1)"
-  // -------------------------------
-  pdf.addPage();
-  pdf.setFontSize(12);
-  pdf.text("Détails par mois (année 1)", pageWidth / 2, 60, { align: "center" });
-
-  const monthlyTableEl = document.getElementById(monthlyTableId);
-  if (monthlyTableEl) {
-    // Création d'un PDF temporaire pour obtenir la hauteur du tableau
-    const tempPdf = new jsPDF("p", "mm", "a4");
-    tempPdf.autoTable({
-      html: monthlyTableEl,
-      startY: 0,
-      styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
-      headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
-      columnStyles: {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 15 },
-        2: { cellWidth: 15 },
-        3: { cellWidth: 15 },
-        4: { cellWidth: 15 },
-        5: { cellWidth: 18 },
-        6: { cellWidth: 18 },
-        7: { cellWidth: 18 },
-        8: { cellWidth: 15 },
-        9: { cellWidth: 15 },
-        10: { cellWidth: 12 },
-        11: { cellWidth: 12 },
-        12: { cellWidth: 12 }
-      }
-    });
-    const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
-    // Décaler le tableau de 20 mm vers le haut
-    const newStartY = (pageHeight - tableHeight) / 2 - 20;
-    pdf.autoTable({
-      html: monthlyTableEl,
-      startY: newStartY,
-      margin: { left: 5 },
-      styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
-      headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
-      columnStyles: {
-        0: { cellWidth: 15 },
-        1: { cellWidth: 15 },
-        2: { cellWidth: 15 },
-        3: { cellWidth: 15 },
-        4: { cellWidth: 15 },
-        5: { cellWidth: 18 },
-        6: { cellWidth: 18 },
-        7: { cellWidth: 18 },
-        8: { cellWidth: 15 },
-        9: { cellWidth: 15 },
-        10: { cellWidth: 12 },
-        11: { cellWidth: 12 },
-        12: { cellWidth: 12 }
-      }
-    });
-  } else {
-    pdf.text("Tableau Détails par mois non disponible", 10, 30);
-  }
-
-  // Récupération des totaux depuis le tfoot du tableau HTML (en supposant que la première cellule est un label)
-  let totalConso = "-";
-  let totalProd  = "-";
-  let totalAuto  = "-";
-  let totalRev   = "-";
-  let totalEcon  = "-";
-  if (monthlyTableEl) {
-    const tfoot = monthlyTableEl.querySelector("tfoot");
-    if (tfoot) {
-      const lastRow = tfoot.querySelector("tr");
-      if (lastRow) {
-        const cellConso = lastRow.querySelector("td:nth-child(2)");
-        if (cellConso) totalConso = cellConso.textContent.trim();
-        const cellProd = lastRow.querySelector("td:nth-child(3)");
-        if (cellProd) totalProd = cellProd.textContent.trim();
-        const cellAuto = lastRow.querySelector("td:nth-child(4)");
-        if (cellAuto) totalAuto = cellAuto.textContent.trim();
-        const cellRev = lastRow.querySelector("td:nth-child(5)");
-        if (cellRev) totalRev = cellRev.textContent.trim();
-        const cellEcon = lastRow.querySelector("td:nth-child(11)");
-        if (cellEcon) totalEcon = cellEcon.textContent.trim();
+    pdf.addPage();
+    pdf.setFontSize(12);
+    pdf.text("Détails par mois (année 1)", pageWidth / 2, 60, { align: "center" });
+  
+    const monthlyTableEl = document.getElementById(monthlyTableId);
+    if (monthlyTableEl) {
+      const tempPdf = new jsPDF("p", "mm", "a4");
+      tempPdf.autoTable({
+        html: monthlyTableEl,
+        startY: 0,
+        styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
+        headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 15 },
+          2: { cellWidth: 15 },
+          3: { cellWidth: 15 },
+          4: { cellWidth: 15 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 18 },
+          7: { cellWidth: 18 },
+          8: { cellWidth: 15 },
+          9: { cellWidth: 15 },
+          10: { cellWidth: 12 },
+          11: { cellWidth: 12 },
+          12: { cellWidth: 12 }
+        }
+      });
+      const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
+      const newStartY = (pageHeight - tableHeight) / 2 - 20;
+      pdf.autoTable({
+        html: monthlyTableEl,
+        startY: newStartY,
+        margin: { left: 5 },
+        styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
+        headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
+        columnStyles: {
+          0: { cellWidth: 15 },
+          1: { cellWidth: 15 },
+          2: { cellWidth: 15 },
+          3: { cellWidth: 15 },
+          4: { cellWidth: 15 },
+          5: { cellWidth: 18 },
+          6: { cellWidth: 18 },
+          7: { cellWidth: 18 },
+          8: { cellWidth: 15 },
+          9: { cellWidth: 15 },
+          10: { cellWidth: 12 },
+          11: { cellWidth: 12 },
+          12: { cellWidth: 12 }
+        }
+      });
+    } else {
+      pdf.text("Tableau Détails par mois non disponible", 10, 30);
+    }
+  
+    let totalConso = "-";
+    let totalProd  = "-";
+    let totalAuto  = "-";
+    let totalRev   = "-";
+    let totalEcon  = "-";
+    if (monthlyTableEl) {
+      const tfoot = monthlyTableEl.querySelector("tfoot");
+      if (tfoot) {
+        const lastRow = tfoot.querySelector("tr");
+        if (lastRow) {
+          const cellConso = lastRow.querySelector("td:nth-child(2)");
+          if (cellConso) totalConso = cellConso.textContent.trim();
+          const cellProd = lastRow.querySelector("td:nth-child(3)");
+          if (cellProd) totalProd = cellProd.textContent.trim();
+          const cellAuto = lastRow.querySelector("td:nth-child(4)");
+          if (cellAuto) totalAuto = cellAuto.textContent.trim();
+          const cellRev = lastRow.querySelector("td:nth-child(5)");
+          if (cellRev) totalRev = cellRev.textContent.trim();
+          const cellEcon = lastRow.querySelector("td:nth-child(11)");
+          if (cellEcon) totalEcon = cellEcon.textContent.trim();
+        }
       }
     }
+  
+    const lastTableY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
+    const titleY = lastTableY + 15;
+    pdf.setFontSize(14);
+    pdf.text("Informations sur la production", pageWidth / 2, titleY, { align: "center" });
+  
+    const containerX = 15;
+    const containerY = titleY + 5;
+    const containerWidth = pageWidth - 30;
+    const containerHeight = 3 * 8 + 2;
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(150);
+    pdf.setFillColor(230,230,230);
+    pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
+  
+    const boxPadding = 2;
+    const lineHeight = 6;
+    const fieldX = containerX + boxPadding;
+    const fieldWidthFull = containerWidth - 2 * boxPadding;
+    const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
+  
+    const fieldY1 = containerY + boxPadding;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(fieldX, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.setFontSize(10);
+    pdf.text("Votre consommation annuelle Kwh: " + totalConso, fieldX + 1, fieldY1 + lineHeight - 2);
+    const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(fieldX2, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Production annuelle Kwh: " + totalProd, fieldX2 + 1, fieldY1 + lineHeight - 2);
+  
+    const fieldY2 = fieldY1 + lineHeight + 2;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Electricité produite consommée Kwh: " + totalAuto, fieldX + 1, fieldY2 + lineHeight - 2);
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Electricité produite revendue Kwh: " + totalRev, fieldX2 + 1, fieldY2 + lineHeight - 2);
+  
+    const fieldY3 = fieldY2 + lineHeight + 2;
+    pdf.setFillColor(255,255,255);
+    pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
+    pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
   }
-
-  // -------------------------------
-  // Ajout du cadre "Informations sur la production" (page 2)
-  // -------------------------------
-  const lastTableY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
-  const titleY = lastTableY + 15; // 15 mm sous le tableau
-  pdf.setFontSize(14);
-  pdf.text("Informations sur la production", pageWidth / 2, titleY, { align: "center" });
-
-  // Cadre principal avec hauteur agrandie de 2 mm
-  const containerX = 15;
-  const containerY = titleY + 5; // 5 mm sous le titre
-  const containerWidth = pageWidth - 30;
-  const containerHeight = 3 * 8 + 2;  // 3 lignes de 8 mm + 2 mm supplémentaires
-  pdf.setLineWidth(0.5);
-  pdf.setDrawColor(150);
-  pdf.setFillColor(230,230,230);
-  pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
-
-  // Paramètres pour les champs internes
-  const boxPadding = 2;
-  const lineHeight = 6;
-  const fieldX = containerX + boxPadding;
-  const fieldWidthFull = containerWidth - 2 * boxPadding;
-  const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
-
-  // Ligne 1 : "Votre consommation annuelle Kwh:" et "Production annuelle Kwh:"
-  const fieldY1 = containerY + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.setFontSize(10);
-  pdf.text("Votre consommation annuelle Kwh: " + totalConso, fieldX + 1, fieldY1 + lineHeight - 2);
-  const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Production annuelle Kwh: " + totalProd, fieldX2 + 1, fieldY1 + lineHeight - 2);
-
-  // Ligne 2 : "Electricité produite consommée Kwh:" et "Electricité produite revendue Kwh:"
-  const fieldY2 = fieldY1 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Electricité produite consommée Kwh: " + totalAuto, fieldX + 1, fieldY2 + lineHeight - 2);
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Electricité produite revendue Kwh: " + totalRev, fieldX2 + 1, fieldY2 + lineHeight - 2);
-
-  // Ligne 3 : "Economies réalisés avec la centrale %:"
-  const fieldY3 = fieldY2 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
-  pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
-}
-
+  
   // -------------------------------
   // PAGE 3 : Graphique sans légende
   // -------------------------------
@@ -2348,7 +2332,9 @@
     pdf.text("Tableau Plan de trésorerie non disponible", 10, 30);
   }
   
-  // Fusion avec le template (selon territoire)
+  // -------------------------------
+  // Fusion avec le template selon territoire
+  // -------------------------------
   const generatedPdfBytes = pdf.output("arraybuffer");
   let territory = document.getElementById("territory").value || "France Metropolitaine";
   let templateFile = "";
@@ -2399,6 +2385,7 @@
       pdf.save();
     });
 }
+
 
   </script>
 </body>
