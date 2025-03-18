@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v711</title> 
+  <title>FRH PRO formulaire  - v712</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2388,16 +2388,17 @@ if (chartImage) {
     ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
     : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
   primeValue = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
-  pdf.text("Prime à l'autoconsommation: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
+  pdf.text("Prime à l'autoconsommation €: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
   
   // ----- Troisième ligne -----
   const synthRow3Y = synthRow2Y + synthLineHeight + 2;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  const coutNet = (reportType === "selection")
+  let coutNet = (reportType === "selection")
     ? (document.getElementById("coutReelInstallationForced") ? document.getElementById("coutReelInstallationForced").textContent.trim() : "-")
     : (document.getElementById("coutReelInstallation") ? document.getElementById("coutReelInstallation").textContent.trim() : "-");
-  pdf.text("Cout net de la centrale: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
+    coutNet = String(coutNet).replace(/[\u00A0\u202F]/g, " ");
+  pdf.text("Cout net de la centrale €: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
   
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX2, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
