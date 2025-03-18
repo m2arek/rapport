@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v620</title> 
+  <title>FRH PRO formulaire  - v621</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2180,7 +2180,7 @@ pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textCo
     pdf.text("Tableau Détails par mois non disponible", 10, 30);
   }
 
-  // Récupération des totaux depuis le tfoot du tableau HTML, si présent
+  // Récupération des totaux depuis le tfoot du tableau HTML, avec correction du décalage d'une colonne
   let totalConso = "-";
   let totalProd  = "-";
   let totalAuto  = "-";
@@ -2191,16 +2191,14 @@ pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textCo
     if (tfoot) {
       const lastRow = tfoot.querySelector("tr");
       if (lastRow) {
-        // Adaptez ces indices selon l'ordre réel des colonnes dans votre tableau
-        const cellConso = lastRow.querySelector("td:nth-child(1)");
+        const cellConso = lastRow.querySelector("td:nth-child(2)");
         if (cellConso) totalConso = cellConso.textContent.trim();
-        const cellProd = lastRow.querySelector("td:nth-child(2)");
+        const cellProd = lastRow.querySelector("td:nth-child(3)");
         if (cellProd) totalProd = cellProd.textContent.trim();
-        const cellAuto = lastRow.querySelector("td:nth-child(3)");
+        const cellAuto = lastRow.querySelector("td:nth-child(4)");
         if (cellAuto) totalAuto = cellAuto.textContent.trim();
-        const cellRev = lastRow.querySelector("td:nth-child(4)");
+        const cellRev = lastRow.querySelector("td:nth-child(5)");
         if (cellRev) totalRev = cellRev.textContent.trim();
-        // On suppose que la 11ème cellule correspond à "% Auto prod"
         const cellEcon = lastRow.querySelector("td:nth-child(11)");
         if (cellEcon) totalEcon = cellEcon.textContent.trim();
       }
@@ -2215,7 +2213,7 @@ pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textCo
   pdf.setFontSize(14);
   pdf.text("Informations sur la production", pageWidth / 2, titleY, { align: "center" });
 
-  // Cadre principal
+  // Cadre principal identique au design de la page 1
   const containerX = 15;
   const containerY = titleY + 5; // 5 mm sous le titre
   const containerWidth = pageWidth - 30;
@@ -2225,7 +2223,7 @@ pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textCo
   pdf.setFillColor(230,230,230);
   pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
 
-  // Paramètres internes
+  // Paramètres pour les champs internes
   const boxPadding = 2;
   const lineHeight = 6;
   const fieldX = containerX + boxPadding;
@@ -2258,7 +2256,6 @@ pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textCo
   pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
   pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
 }
-
 
 
       // -------------------------------
