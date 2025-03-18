@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v700</title> 
+  <title>FRH PRO formulaire  - v701</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2028,10 +2028,16 @@
     /***************************************************
      * FONCTION DE GÉNÉRATION DU RAPPORT PDF (5 pages) AVEC FUSION DU TEMPLATE
      ***************************************************/
-    async function generatePdfReport() {
-  // Demande via un prompt le type de préconisation souhaité
-  let reportType = prompt("Tapez 'standard' pour Préconisation standard ou 'selection' pour Préconisation sélection", "standard");
-  reportType = reportType ? reportType.toLowerCase() : "standard";
+   async function generatePdfReport() {
+  // Demande à l'utilisateur : 1 pour Préconisation Sélection, 2 pour Préconisation Standard
+  let choix = prompt("Tapez 1 pour Préconisation Sélection, 2 pour Préconisation Standard", "2");
+  let reportType;
+  if (choix === "1") {
+    reportType = "selection";
+  } else if (choix === "2") {
+    reportType = "standard";
+  } else {
+    reportType = "standard";
   let monthlyTableId, projectionTableId, chartId;
   if (reportType === "selection") {
     monthlyTableId = "preconisationMonthlyTableForced";
