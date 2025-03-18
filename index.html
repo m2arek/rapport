@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v411</title> 
+  <title>FRH PRO formulaire  - v600</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -887,7 +887,6 @@
       months.forEach((month, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-
           <td>${month}</td>
           <td>
             <input type="number" id="euros_${index}" name="euros_${index}" placeholder="€" style="width: 90%;" oninput="calculateCost(${index})" />
@@ -2154,8 +2153,19 @@
       // Récupérer le PDF généré par jsPDF en ArrayBuffer
       const generatedPdfBytes = pdf.output("arraybuffer");
       
-      // Charger le template "template metro.pdf" via fetch
-      fetch("template metro.pdf")
+      // Détermination du template à charger en fonction du territoire
+      let territory = document.getElementById("territory").value || "France Metropolitaine";
+      let templateFile = "";
+      if(territory === "Corse") {
+        templateFile = "template corse.pdf";
+      } else if(territory === "Reunion") {
+        templateFile = "template reunion.pdf";
+      } else {
+        templateFile = "template metro.pdf";
+      }
+      
+      // Charger le template via fetch
+      fetch(templateFile)
         .then(response => response.arrayBuffer())
         .then(async templateBytes => {
           const { PDFDocument } = PDFLib;
