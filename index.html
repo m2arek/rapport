@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v714</title> 
+  <title>FRH PRO formulaire  - v715</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2050,92 +2050,94 @@ async function generatePdfReport() {
     chartId = "monthlyBarChart";
   }
   
-  // Initialisation du PDF
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF("p", "mm", "a4");
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  /* ===============================
+  /* -------------------------------
      PAGE 1 : Capture de carte et Informations sur l'installation
-     =============================== */
-  pdf.setFontSize(16);
-  pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
-  const companyName = document.getElementById("companyName")?.value || "";
-  pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
-  
-  let yPos, imgWidth, imgHeight;
-  if (mapCaptureDataURL) {
-    imgWidth = pageWidth - 30;
-    imgHeight = imgWidth * 0.6;
-    // Pour redescendre l'image, on ajoute 20 mm
-    yPos = (pageHeight - imgHeight) / 2 + 20;
-    pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
-  } else {
-    yPos = pageHeight / 2;
-    imgHeight = 0;
-    pdf.text("Aucune capture de carte disponible", pageWidth / 2, yPos, { align: "center" });
+     ------------------------------- */
+  {
+    pdf.setFontSize(16);
+    pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
+    const companyName = document.getElementById("companyName")?.value || "";
+    pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
+    
+    let yPos, imgWidth, imgHeight;
+    if (mapCaptureDataURL) {
+      imgWidth = pageWidth - 30;
+      imgHeight = imgWidth * 0.6;
+      // Pour redescendre l'image (donc faire apparaître le bloc d'infos sous le nom),
+      // on ajoute 20 mm à yPos.
+      yPos = (pageHeight - imgHeight) / 2 + 20;
+      pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
+    } else {
+      yPos = pageHeight / 2;
+      imgHeight = 0;
+      pdf.text("Aucune capture de carte disponible", pageWidth / 2, yPos, { align: "center" });
+    }
+    
+    // Position du bloc "Informations sur l'installation" juste sous l'image
+    const detailsY = yPos + imgHeight + 10; // 10 mm sous l'image
+    const infoTitleY = detailsY - 5; // le titre est 5 mm au-dessus du conteneur
+    pdf.setFontSize(14);
+    pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
+    
+    const containerX = 15;
+    const containerY = detailsY;
+    const containerWidth = pageWidth - 30;
+    const containerHeight = 34; // 4 lignes
+    pdf.setLineWidth(0.5);
+    pdf.setDrawColor(150);
+    pdf.setFillColor(230, 230, 230);
+    pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
+    
+    const boxPadding = 2;
+    const lineHeight = 6;
+    const fieldX = containerX + boxPadding;
+    const fieldWidthFull = containerWidth - 2 * boxPadding;
+    const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
+    
+    const fieldY1 = containerY + boxPadding;
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
+    pdf.setFontSize(10);
+    pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
+    
+    const fieldY2 = fieldY1 + lineHeight + 2;
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
+    const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
+    
+    const fieldY3 = fieldY2 + lineHeight + 2;
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    let prodStr = document.getElementById("productible").value;
+    prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
+    pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
+    
+    const fieldY4 = fieldY3 + lineHeight + 2;
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    const puissanceRecoVal = (reportType === "selection")
+      ? document.getElementById("puissanceRecoForced").textContent
+      : document.getElementById("puissanceReco").textContent;
+    pdf.text("Puissance préconisée Kwc: " + puissanceRecoVal, fieldX + 1, fieldY4 + lineHeight - 2);
+    pdf.setFillColor(255, 255, 255);
+    pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
+    const nombreModulesVal = (reportType === "selection")
+      ? document.getElementById("nombreModulesForced").textContent
+      : document.getElementById("nombreModules").textContent;
+    pdf.text("Nombre de modules: " + nombreModulesVal, fieldX2 + 1, fieldY4 + lineHeight - 2);
   }
-  
-  // Le bloc "Informations sur l'installation" est positionné immédiatement sous l'image.
-  const detailsY = yPos + imgHeight + 10; // 10 mm sous l'image
-  const infoTitleY = detailsY - 5; // le titre du bloc placé juste au-dessus du conteneur
-  pdf.setFontSize(14);
-  pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
-  
-  const containerX = 15;
-  const containerY = detailsY; // début du conteneur
-  const containerWidth = pageWidth - 30;
-  const containerHeight = 34;  // hauteur pour 4 lignes
-  pdf.setLineWidth(0.5);
-  pdf.setDrawColor(150);
-  pdf.setFillColor(230,230,230);
-  pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
-  
-  const boxPadding = 2;
-  const lineHeight = 6;
-  const fieldX = containerX + boxPadding;
-  const fieldWidthFull = containerWidth - 2 * boxPadding;
-  const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
-  
-  const fieldY1 = containerY + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
-  pdf.setFontSize(10);
-  pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
-  
-  const fieldY2 = fieldY1 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
-  const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
-  
-  const fieldY3 = fieldY2 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  let prodStr = document.getElementById("productible").value;
-  prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
-  pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
-  
-  const fieldY4 = fieldY3 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  const puissanceRecoVal = (reportType === "selection")
-    ? document.getElementById("puissanceRecoForced").textContent
-    : document.getElementById("puissanceReco").textContent;
-  pdf.text("Puissance préconisée Kwc: " + puissanceRecoVal, fieldX + 1, fieldY4 + lineHeight - 2);
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  const nombreModulesVal = (reportType === "selection")
-    ? document.getElementById("nombreModulesForced").textContent
-    : document.getElementById("nombreModules").textContent;
-  pdf.text("Nombre de modules: " + nombreModulesVal, fieldX2 + 1, fieldY4 + lineHeight - 2);
   
   /* ===============================
      PAGE 2 : Tableau "Détails par mois (année 1)" et Bloc "Informations sur la production"
@@ -2143,7 +2145,7 @@ async function generatePdfReport() {
   {
     pdf.addPage();
     pdf.setFontSize(12);
-    // Pour la page 2, on souhaite décaler le titre du tableau vers le bas de 40 mm
+    // Pour la page 2, décaler le titre du tableau vers le bas de 40 mm
     pdf.text("Détails par mois (année 1)", pageWidth / 2, 60 + 40, { align: "center" });
   
     const monthlyTableEl = document.getElementById(monthlyTableId);
@@ -2171,7 +2173,7 @@ async function generatePdfReport() {
         }
       });
       const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
-      // Ici, on décale le tableau vers le bas de 20 mm en ajoutant 20
+      // Décaler le tableau de 20 mm vers le bas (ajout de 20 mm)
       const newStartY = (pageHeight - tableHeight) / 2 + 20;
       pdf.autoTable({
         html: monthlyTableEl,
@@ -2201,9 +2203,9 @@ async function generatePdfReport() {
   
     let totalConso = "-";
     let totalProd  = "-";
-    let totalAuto = "-";
-    let totalRev = "-";
-    let totalEcon = "-";
+    let totalAuto  = "-";
+    let totalRev   = "-";
+    let totalEcon  = "-";
     if (monthlyTableEl) {
       const tfoot = monthlyTableEl.querySelector("tfoot");
       if (tfoot) {
@@ -2223,7 +2225,7 @@ async function generatePdfReport() {
       }
     }
   
-    // Bloc "Informations sur la production" sous le titre "Détails par mois (année 1)"
+    // Bloc "Informations sur la production"
     const lastTableY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
     const infoProdTitleY = lastTableY + 15;
     pdf.setFontSize(14);
@@ -2271,27 +2273,29 @@ async function generatePdfReport() {
   /* ===============================
      PAGE 3 : Graphique sans légende
      =============================== */
-  pdf.addPage();
-  pdf.setFontSize(14);
-  pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
-  let chartImage = "";
-  if (reportType === "selection") {
-    if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
-      chartImage = monthlyBarChartForced.toBase64Image();
+  {
+    pdf.addPage();
+    pdf.setFontSize(14);
+    pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
+    let chartImage = "";
+    if (reportType === "selection") {
+      if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
+        chartImage = monthlyBarChartForced.toBase64Image();
+      }
+    } else {
+      if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
+        chartImage = monthlyBarChart.toBase64Image();
+      }
     }
-  } else {
-    if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
-      chartImage = monthlyBarChart.toBase64Image();
+    if (chartImage) {
+      const chartHeightPx = 300; 
+      const chartHeight = chartHeightPx * 0.264583;
+      const chartWidth = pageWidth - 30;
+      const yPosChart = (pageHeight - chartHeight) / 2;
+      pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
+    } else {
+      pdf.text("Graphique non disponible", 10, 30);
     }
-  }
-  if (chartImage) {
-    const chartHeightPx = 300; 
-    const chartHeight = chartHeightPx * 0.264583;
-    const chartWidth = pageWidth - 30;
-    const yPosChart = (pageHeight - chartHeight) / 2;
-    pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
-  } else {
-    pdf.text("Graphique non disponible", 10, 30);
   }
   
   /* ===============================
@@ -2300,7 +2304,7 @@ async function generatePdfReport() {
   {
     pdf.addPage();
     pdf.setFontSize(14);
-    // Déplacer le titre "Projection sur 20 ans" vers le bas de 20 mm
+    // Décaler le titre "Projection sur 20 ans" vers le bas de 20 mm
     pdf.text("Projection sur 20 ans", pageWidth / 2, 60 + 20, { align: "center" });
     const projectionTableEl = document.getElementById(projectionTableId);
     if (projectionTableEl) {
@@ -2324,17 +2328,17 @@ async function generatePdfReport() {
       pdf.text("Tableau Projection sur 20 ans non disponible", 10, 30);
     }
     
-    // Bloc "Synthèse des résultats" : positionné 20 mm sous la fin du tableau Projection
+    // Bloc "Synthèse des résultats" : positionné 20 mm sous le tableau Projection
     const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
     const synthTitleY = projEndY + 20;
     pdf.setFontSize(14);
     pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
     
-    // Définir le conteneur pour 3 lignes
+    // Conteneur pour 3 lignes
     const synthContainerX = 15;
     const synthContainerY = synthTitleY + 5;
     const synthContainerWidth = pageWidth - 30;
-    const synthContainerHeight = 26;  // 3 lignes de 8 mm + 2 mm supplémentaires
+    const synthContainerHeight = 26;  // 3 lignes de 8 mm + 2 mm
     pdf.setLineWidth(0.5);
     pdf.setDrawColor(150);
     pdf.setFillColor(230,230,230);
@@ -2395,54 +2399,58 @@ async function generatePdfReport() {
   /* ===============================
      PAGE 3 : Graphique sans légende
      =============================== */
-  pdf.addPage();
-  pdf.setFontSize(14);
-  pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
-  let chartImage = "";
-  if (reportType === "selection") {
-    if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
-      chartImage = monthlyBarChartForced.toBase64Image();
+  {
+    pdf.addPage();
+    pdf.setFontSize(14);
+    pdf.text("Graphique des productions", pageWidth / 2, 60, { align: "center" });
+    let chartImage = "";
+    if (reportType === "selection") {
+      if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
+        chartImage = monthlyBarChartForced.toBase64Image();
+      }
+    } else {
+      if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
+        chartImage = monthlyBarChart.toBase64Image();
+      }
     }
-  } else {
-    if (monthlyBarChart && typeof monthlyBarChart.toBase64Image === "function") {
-      chartImage = monthlyBarChart.toBase64Image();
+    if (chartImage) {
+      const chartHeightPx = 300; 
+      const chartHeight = chartHeightPx * 0.264583;
+      const chartWidth = pageWidth - 30;
+      const yPosChart = (pageHeight - chartHeight) / 2;
+      pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
+    } else {
+      pdf.text("Graphique non disponible", 10, 30);
     }
-  }
-  if (chartImage) {
-    const chartHeightPx = 300; 
-    const chartHeight = chartHeightPx * 0.264583;
-    const chartWidth = pageWidth - 30;
-    const yPosChart = (pageHeight - chartHeight) / 2;
-    pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
-  } else {
-    pdf.text("Graphique non disponible", 10, 30);
   }
   
   /* ===============================
      PAGE 5 : Tableau "Plan de trésorerie (Annuel)"
      =============================== */
-  pdf.addPage();
-  pdf.setFontSize(14);
-  pdf.text("Plan de trésorerie (Annuel)", pageWidth / 2, 40, { align: "center" });
-  const tresorerieTableEl = document.getElementById("planTresorerieTable");
-  if (tresorerieTableEl) {
-    const tempPdf3 = new jsPDF("p", "mm", "a4");
-    tempPdf3.autoTable({
-      html: tresorerieTableEl,
-      startY: 0,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [200, 200, 200] }
-    });
-    const tresoTableHeight = tempPdf3.lastAutoTable ? tempPdf3.lastAutoTable.finalY : 0;
-    const newStartY3 = (pageHeight - tresoTableHeight) / 2;
-    pdf.autoTable({
-      html: tresorerieTableEl,
-      startY: newStartY3,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [200, 200, 200] }
-    });
-  } else {
-    pdf.text("Tableau Plan de trésorerie non disponible", 10, 30);
+  {
+    pdf.addPage();
+    pdf.setFontSize(14);
+    pdf.text("Plan de trésorerie (Annuel)", pageWidth / 2, 40, { align: "center" });
+    const tresorerieTableEl = document.getElementById("planTresorerieTable");
+    if (tresorerieTableEl) {
+      const tempPdf3 = new jsPDF("p", "mm", "a4");
+      tempPdf3.autoTable({
+        html: tresorerieTableEl,
+        startY: 0,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [200, 200, 200] }
+      });
+      const tresoTableHeight = tempPdf3.lastAutoTable ? tempPdf3.lastAutoTable.finalY : 0;
+      const newStartY3 = (pageHeight - tresoTableHeight) / 2;
+      pdf.autoTable({
+        html: tresorerieTableEl,
+        startY: newStartY3,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [200, 200, 200] }
+      });
+    } else {
+      pdf.text("Tableau Plan de trésorerie non disponible", 10, 30);
+    }
   }
   
   /* ===============================
@@ -2467,7 +2475,7 @@ async function generatePdfReport() {
       const generatedPdf = await PDFDocument.load(generatedPdfBytes);
       const mergedPdf = await PDFDocument.create();
       
-      // On suppose que le template contient une seule page servant de fond pour chaque page
+     // On suppose que le template contient une seule page servant de fond pour chaque page
       const [templatePage] = await mergedPdf.copyPages(templatePdf, [0]);
       const generatedPages = generatedPdf.getPages();
       for (let i = 0; i < generatedPages.length; i++) {
