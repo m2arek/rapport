@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v707</title> 
+  <title>FRH PRO formulaire  - v708</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2346,35 +2346,52 @@ if (chartImage) {
   pdf.setFontSize(14);
   pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
 
-  // Dessiner le cadre en dessous du titre (5 mm sous le titre)
-  const synthContainerY = synthTitleY + 5;
+  // Définir le conteneur de synthèse (deux lignes)
   const synthContainerX = 15;
+  const synthContainerY = synthTitleY + 5; // 5 mm sous le titre
   const synthContainerWidth = pageWidth - 30;
-  const synthContainerHeight = 8;  // Hauteur pour une ligne (vous pouvez l'ajuster)
+  const synthContainerHeight = 2 * 8;  // 2 lignes de 8 mm chacune
   pdf.setLineWidth(0.5);
   pdf.setDrawColor(150);
   pdf.setFillColor(230,230,230);
   pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
 
-  // Paramètres pour les champs internes du cadre
+  // Paramètres internes du conteneur de synthèse
   const synthBoxPadding = 2;
   const synthLineHeight = 6;
   const synthFieldX = synthContainerX + synthBoxPadding;
   const synthFieldWidthHalf = (synthContainerWidth - 3 * synthBoxPadding) / 2;
 
-  // Champ 1 : "Augmentation annuelle du prix de l'électricité (%) :"
+  // ----- Première ligne -----
+  // Champ 1 : "Augmentation annuelle du prix de l'électricité (%)"
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX, synthContainerY + synthBoxPadding, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
   pdf.setFontSize(10);
   const annualIncrease = document.getElementById("annualPriceIncrease").value;
   pdf.text("Augmentation annuelle du prix de l'électricité (%): " + annualIncrease, synthFieldX + 1, synthContainerY + synthBoxPadding + synthLineHeight - 2);
-
-  // Champ 2 : "Tarif de rachat du surplus (€/kWh):"
+  // Champ 2 : "Tarif de rachat du surplus (€/kWh)"
   const synthFieldX2 = synthFieldX + synthFieldWidthHalf + synthBoxPadding;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX2, synthContainerY + synthBoxPadding, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
   const tarifRachat = document.getElementById("tarifRachat").value;
   pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 1, synthContainerY + synthBoxPadding + synthLineHeight - 2);
+
+  // ----- Deuxième ligne -----
+  const synthSecondLineY = synthContainerY + synthBoxPadding + synthLineHeight + 2;
+  // Champ 1 : "Total des économies réalisés sur 20 ans"
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(synthFieldX, synthSecondLineY, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+  // On suppose que le tableau Projection sur 20 ans comporte un élément avec l'id "totalEconomies" dans la dernière ligne
+  const totalEconomies = document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-";
+  pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthSecondLineY + synthLineHeight - 2);
+  // Champ 2 : "Prime à l'autoconsommation"
+  pdf.setFillColor(255,255,255);
+  pdf.roundedRect(synthFieldX2, synthSecondLineY, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+  // Choisir la prime selon le reportType
+  const primeValue = (reportType === "selection")
+    ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
+    : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
+  pdf.text("Prime à l'autoconsommation: " + primeValue, synthFieldX2 + 1, synthSecondLineY + synthLineHeight - 2);
 }
 
   
