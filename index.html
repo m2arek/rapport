@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v615</title> 
+  <title>FRH PRO formulaire  - v616</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2043,7 +2043,8 @@ pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
 
-let yPos, imgWidth, imgHeight;  // Variables déclarées pour l'image
+let yPos, imgWidth, imgHeight;  // Déclaration des variables en dehors du bloc if
+
 if (mapCaptureDataURL) {
   imgWidth = pageWidth - 30;
   imgHeight = imgWidth * 0.6;
@@ -2055,65 +2056,61 @@ if (mapCaptureDataURL) {
   pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
 }
 
-// Définir la position de départ pour le bloc d'informations
+// Définition de la position du bloc d'informations
 const detailsY = yPos + imgHeight + 10;
 
-// -----------------
-// Dessin du cadre principal
-// -----------------
+// Dessiner un grand cadre arrondi pour regrouper les infos
 const containerX = 15;
 const containerY = detailsY - 5;
 const containerWidth = pageWidth - 30;
-const containerHeight = 34;  // hauteur totale pour 4 lignes avec interlignes
+const containerHeight = 34;  // Hauteur totale pour 4 lignes (ajustable)
 pdf.setLineWidth(0.5);
 pdf.setDrawColor(150); // Gris pour le contour
 pdf.setFillColor(230,230,230); // Fond gris clair
 pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
 
-// Paramètres pour les encadrés individuels
+// Définir les paramètres pour les encadrés individuels
 const boxPadding = 2;
 const lineHeight = 6;
 const fieldX = containerX + boxPadding;
 const fieldWidthFull = containerWidth - 2 * boxPadding;
 const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2; // pour deux colonnes
 
-// -----------------
-// Ligne 1 : Adresse sur toute la largeur
-// -----------------
+// Ligne 1 : Adresse (champ sur toute la largeur)
 const fieldY1 = containerY + boxPadding;
-pdf.setFillColor(255,255,255); // Fond blanc pour le champ
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
 pdf.setFontSize(10);
 pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
 
-// -----------------
-// Ligne 2 : Latitude et Longitude (deux colonnes)
-// -----------------
+// Ligne 2 : Latitude et Longitude en deux colonnes
 const fieldY2 = fieldY1 + lineHeight + 2;
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
 const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
 
-// -----------------
-// Ligne 3 : Orientation et Productible (deux colonnes)
-// -----------------
+// Ligne 3 : Orientation et Productible en deux colonnes
 const fieldY3 = fieldY2 + lineHeight + 2;
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
 // Nettoyer la valeur du productible pour remplacer les espaces spéciaux par des espaces normaux
 let prodStr = document.getElementById("productible").value;
 prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
 pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
 
-// -----------------
-// Ligne 4 : Puissance préconisée et Nombre de modules (deux colonnes)
-// -----------------
+// Ligne 4 : Puissance préconisée et Nombre de modules en deux colonnes
 const fieldY4 = fieldY3 + lineHeight + 2;
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Puissance préconisée Kwc: " + document.getElementById("puissanceReco").textContent, fieldX + 1, fieldY4 + lineHeight - 2);
+pdf.setFillColor(255,255,255);
 pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
 pdf.text("Nombre de modules: " + document.getElementById("nombreModules").textContent, fieldX2 + 1, fieldY4 + lineHeight - 2);
 
