@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v601</title> 
+  <title>FRH PRO formulaire  - v602</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2039,7 +2039,7 @@
       // -------------------------------
       pdf.setFontSize(16);
 pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
-pdf.setFontSize(12);
+pdf.setFontSize(16);
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
 if (mapCaptureDataURL) {
