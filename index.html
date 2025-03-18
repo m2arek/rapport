@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v708</title> 
+  <title>FRH PRO formulaire  - v709</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2391,7 +2391,9 @@ if (chartImage) {
   const primeValue = (reportType === "selection")
     ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
     : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
-  pdf.text("Prime à l'autoconsommation: " + primeValue, synthFieldX2 + 1, synthSecondLineY + synthLineHeight - 2);
+  // Nettoyer la valeur pour remplacer les espaces insécables et étroits par des espaces normaux
+primeValue = primeValue.replace(/[\u00A0\u202F]/g, " ");
+pdf.text("Prime à l'autoconsommation: " + primeValue, synthFieldX2 + 1, synthSecondLineY + synthLineHeight - 2);
 }
 
   
