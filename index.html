@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v714</title> 
+  <title>FRH PRO  - v715</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2291,106 +2291,93 @@ if (chartImage) {
 }
 
   {
-  // -------------------------------
-  // PAGE 4 : Tableau "Projection sur 20 ans"
-  // -------------------------------
   pdf.addPage();
-  pdf.setFontSize(14);
-  pdf.text("Projection sur 20 ans", pageWidth / 2, 40, { align: "center" });
-  const projectionTableEl = document.getElementById(projectionTableId);
-  if (projectionTableEl) {
-    const tempPdf2 = new jsPDF("p", "mm", "a4");
-    tempPdf2.autoTable({
-      html: projectionTableEl,
-      startY: 0,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
-    });
-    const projTableHeight = tempPdf2.lastAutoTable ? tempPdf2.lastAutoTable.finalY : 0;
-    const newStartY2 = (pageHeight - projTableHeight) / 2;
-    pdf.autoTable({
-      html: projectionTableEl,
-      startY: newStartY2,
-      styles: { fontSize: 8, cellPadding: 2 },
-      headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
-    });
-  } else {
-    pdf.text("Tableau Projection sur 20 ans non disponible", 10, 30);
-  }
-  
-  // -------------------------------
-  // Ajout du bloc "Synthèse des résultats"
-  // -------------------------------
-  // Positionner le bloc 20 mm sous la fin du tableau Projection
-  const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
-  const synthTitleY = projEndY + 20; // 20 mm sous le tableau
-  pdf.setFontSize(14);
-  pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
-  
-  // Définir le conteneur pour 3 lignes
-  const synthContainerX = 15;
-  const synthContainerY = synthTitleY + 5; // 5 mm sous le titre
-  const synthContainerWidth = pageWidth - 30;
-  const synthContainerHeight = 26;  // Par exemple, 26 mm pour 3 lignes
-  pdf.setLineWidth(0.5);
-  pdf.setDrawColor(150);
-  pdf.setFillColor(230,230,230);
-  pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
-  
-  // Paramètres internes du conteneur
-  const synthBoxPadding = 2;
-  const synthLineHeight = 6;
-  const synthFieldX = synthContainerX + synthBoxPadding;
-  const synthFieldWidthHalf = (synthContainerWidth - 3 * synthBoxPadding) / 2;
-  
-  // ----- Première ligne -----
-  const synthRow1Y = synthContainerY + synthBoxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  pdf.setFontSize(10);
-  const annualIncrease = document.getElementById("annualPriceIncrease").value;
-  pdf.text("Augmentation annuelle du prix de l'électricité (%): " + annualIncrease, synthFieldX + 1, synthRow1Y + synthLineHeight - 2);
-  
-  const synthFieldX2 = synthFieldX + synthFieldWidthHalf + synthBoxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX2, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  const tarifRachat = document.getElementById("tarifRachat").value;
-  pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 1, synthRow1Y + synthLineHeight - 2);
-  
-  // ----- Deuxième ligne -----
-  const synthRow2Y = synthRow1Y + synthLineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  const totalEconomies = document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-";
-  pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
-  
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX2, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  let primeValue = (reportType === "selection")
-    ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
-    : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
-  primeValue = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
-  pdf.text("Prime à l'autoconsommation €: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
-  
-  // ----- Troisième ligne -----
-  const synthRow3Y = synthRow2Y + synthLineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  let coutNet = (reportType === "selection")
-    ? (document.getElementById("coutReelInstallationForced") ? document.getElementById("coutReelInstallationForced").textContent.trim() : "-")
-    : (document.getElementById("coutReelInstallation") ? document.getElementById("coutReelInstallation").textContent.trim() : "-");
-    coutNet = String(coutNet).replace(/[\u00A0\u202F]/g, " ");
-  pdf.text("Cout net de la centrale €: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
-  
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(synthFieldX2, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-  const roiVal = (reportType === "selection")
-    ? (document.getElementById("roiResultForced") ? document.getElementById("roiResultForced").textContent.trim() : "-")
-    : (document.getElementById("roiResult") ? document.getElementById("roiResult").textContent.trim() : "-");
-  pdf.text("Retour sur investissement années: " + roiVal, synthFieldX2 + 1, synthRow3Y + synthLineHeight - 2);
+
+// --- Titre "Projection sur 20 ans" descendu de 20 mm ---
+pdf.setFontSize(14);
+pdf.text("Projection sur 20 ans", pageWidth / 2, 60, { align: "center" });
+
+// --- Bloc "Synthèse des résultats" placé sous le titre ---
+const synthTitleY = 70; // Position du titre du bloc synthèse, par exemple 10 mm sous le titre
+pdf.setFontSize(14);
+pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
+
+// Conteneur pour le bloc "Synthèse des résultats"
+const synthContainerX = 15;
+const synthContainerY = synthTitleY + 5; // 5 mm sous le titre "Synthèse des résultats"
+const synthContainerWidth = pageWidth - 30;
+const synthContainerHeight = 26;  // Par exemple, 26 mm pour 3 lignes
+pdf.setLineWidth(0.5);
+pdf.setDrawColor(150);
+pdf.setFillColor(230,230,230);
+pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
+
+// Paramètres internes du conteneur
+const synthBoxPadding = 2;
+const synthLineHeight = 6;
+const synthFieldX = synthContainerX + synthBoxPadding;
+const synthFieldWidthHalf = (synthContainerWidth - 3 * synthBoxPadding) / 2;
+
+// ----- Première ligne -----
+const synthRow1Y = synthContainerY + synthBoxPadding;
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+pdf.setFontSize(10);
+const annualIncrease = document.getElementById("annualPriceIncrease").value;
+pdf.text("Augmentation annuelle du prix de l'électricité (%): " + annualIncrease, synthFieldX + 1, synthRow1Y + synthLineHeight - 2);
+
+const synthFieldX2 = synthFieldX + synthFieldWidthHalf + synthBoxPadding;
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX2, synthRow1Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+const tarifRachat = document.getElementById("tarifRachat").value;
+pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 1, synthRow1Y + synthLineHeight - 2);
+
+// ----- Deuxième ligne -----
+const synthRow2Y = synthRow1Y + synthLineHeight + 2;
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+const totalEconomies = document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-";
+pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
+
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX2, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+let primeValue = (reportType === "selection")
+  ? (document.getElementById("primeValueForced") ? document.getElementById("primeValueForced").textContent.trim() : "-")
+  : (document.getElementById("primeValue") ? document.getElementById("primeValue").textContent.trim() : "-");
+primeValue = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
+pdf.text("Prime à l'autoconsommation €: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
+
+// ----- Troisième ligne -----
+const synthRow3Y = synthRow2Y + synthLineHeight + 2;
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+let coutNet = (reportType === "selection")
+  ? (document.getElementById("coutReelInstallationForced") ? document.getElementById("coutReelInstallationForced").textContent.trim() : "-")
+  : (document.getElementById("coutReelInstallation") ? document.getElementById("coutReelInstallation").textContent.trim() : "-");
+coutNet = String(coutNet).replace(/[\u00A0\u202F]/g, " ");
+pdf.text("Cout net de la centrale €: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
+
+pdf.setFillColor(255,255,255);
+pdf.roundedRect(synthFieldX2, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
+const roiVal = (reportType === "selection")
+  ? (document.getElementById("roiResultForced") ? document.getElementById("roiResultForced").textContent.trim() : "-")
+  : (document.getElementById("roiResult") ? document.getElementById("roiResult").textContent.trim() : "-");
+pdf.text("Retour sur investissement années: " + roiVal, synthFieldX2 + 1, synthRow3Y + synthLineHeight - 2);
+
+// --- Tableau "Projection sur 20 ans" positionné sous le bloc "Synthèse des résultats" ---
+const tableStartY = synthContainerY + synthContainerHeight + 15; // 15 mm sous le bloc synthèse
+const projectionTableEl = document.getElementById(projectionTableId);
+if (projectionTableEl) {
+  pdf.autoTable({
+    html: projectionTableEl,
+    startY: tableStartY,
+    styles: { fontSize: 8, cellPadding: 2 },
+    headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
+  });
+} else {
+  pdf.text("Tableau Projection sur 20 ans non disponible", 10, tableStartY);
 }
 
- 
   
   // -------------------------------
   // PAGE 5 : Tableau "Plan de trésorerie (Annuel)"
