@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v736</title> 
+  <title>FRH PRO  - v738</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2259,7 +2259,8 @@ if (mapCaptureDataURL) {
 }
 
 // -------------------------------
-// PAGE 3 : Graphique sans légende + Graphique en anneau (donut chart)
+// -------------------------------
+// PAGE 3 : Graphique sans légende + Graphique en anneau (donut chart) modifié
 // -------------------------------
 pdf.addPage();
 pdf.setFontSize(14);
@@ -2292,7 +2293,7 @@ if (chartImage) {
   chartHeight = 50; // Hauteur par défaut pour le calcul
 }
 
-// --- Nouvelle partie : Ajout du graphique en anneau (donut chart) ---
+// --- Nouvelle partie : Ajout du graphique en anneau (donut chart) avec réduction globale de 50% ---
 // Extraction des données depuis le tableau "Détails par mois (année 1)"
 const monthlyTableEl = document.getElementById(monthlyTableId);
 let totalConso = 0, totalAuto = 0, totalRev = 0;
@@ -2317,45 +2318,46 @@ const consoAvecCentrale = totalConso - totalAuto;
 const donutTotal = consoAvecCentrale + totalAuto + totalRev;
 
 // Création du graphique en anneau via un canvas
+// Réduction globale de 50% : dimensions du canvas réduites de 400 -> 200
 const donutCanvas = document.createElement("canvas");
-donutCanvas.width = 400;
-donutCanvas.height = 400;
+donutCanvas.width = 200;
+donutCanvas.height = 200;
 const ctx = donutCanvas.getContext("2d");
 const centerX = donutCanvas.width / 2;
 const centerY = donutCanvas.height / 2;
-const outerRadius = 150; // Rayon extérieur
-const innerRadius = 80;  // Rayon intérieur pour l'effet anneau
+const outerRadius = 75; // anciennement 150, réduit de 50%
+const innerRadius = 40;  // anciennement 80, réduit de 50%
 
-// Dessiner les segments
+// Dessiner les segments avec des couleurs plus claires
 let startAngle = 0;
 let endAngle = 0;
-// Portion 1 (rouge) : "Consommation electrique avec centrale"
+// Portion 1 (couleur claire rouge - lightcoral) : "Consommation electrique avec centrale"
 endAngle = startAngle + (consoAvecCentrale / donutTotal) * 2 * Math.PI;
 ctx.beginPath();
 ctx.moveTo(centerX, centerY);
 ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
 ctx.closePath();
-ctx.fillStyle = "red";
+ctx.fillStyle = "lightcoral";
 ctx.fill();
 startAngle = endAngle;
 
-// Portion 2 (vert) : "Electricité photovoltaique utilisée" (autoconsommation)
+// Portion 2 (couleur claire verte - lightgreen) : "Electricité photovoltaique utilisée" (autoconsommation)
 endAngle = startAngle + (totalAuto / donutTotal) * 2 * Math.PI;
 ctx.beginPath();
 ctx.moveTo(centerX, centerY);
 ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
 ctx.closePath();
-ctx.fillStyle = "green";
+ctx.fillStyle = "lightgreen";
 ctx.fill();
 startAngle = endAngle;
 
-// Portion 3 (bleu) : "Electricité photovoltaique revendue"
+// Portion 3 (couleur claire bleue - lightskyblue) : "Electricité photovoltaique revendue"
 endAngle = startAngle + (totalRev / donutTotal) * 2 * Math.PI;
 ctx.beginPath();
 ctx.moveTo(centerX, centerY);
 ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
 ctx.closePath();
-ctx.fillStyle = "blue";
+ctx.fillStyle = "lightskyblue";
 ctx.fill();
 
 // Création du trou central pour obtenir l'effet "donut"
@@ -2364,34 +2366,34 @@ ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
 ctx.fillStyle = "white";
 ctx.fill();
 
-// Ajout de la légende sur le canvas
-ctx.font = "16px Arial";
+// Ajout de la légende sur le canvas (dimensions et positions réduites de 50%)
+ctx.font = "8px Arial"; // police réduite
 // Légende pour la portion rouge
-ctx.fillStyle = "red";
-ctx.fillRect(10, 10, 20, 20);
+ctx.fillStyle = "lightcoral";
+ctx.fillRect(5, 5, 10, 10);
 ctx.fillStyle = "black";
-ctx.fillText("Consommation electrique avec centrale: " + consoAvecCentrale + " kWh", 35, 25);
+ctx.fillText("Consommation electrique avec centrale: " + consoAvecCentrale + " kWh", 18, 13);
 // Légende pour la portion verte
-ctx.fillStyle = "green";
-ctx.fillRect(10, 40, 20, 20);
+ctx.fillStyle = "lightgreen";
+ctx.fillRect(5, 20, 10, 10);
 ctx.fillStyle = "black";
-ctx.fillText("Electricité photovoltaique utilisée: " + totalAuto + " kWh", 35, 55);
+ctx.fillText("Electricité photovoltaique utilisée: " + totalAuto + " kWh", 18, 28);
 // Légende pour la portion bleue
-ctx.fillStyle = "blue";
-ctx.fillRect(10, 70, 20, 20);
+ctx.fillStyle = "lightskyblue";
+ctx.fillRect(5, 35, 10, 10);
 ctx.fillStyle = "black";
-ctx.fillText("Electricité photovoltaique revendue: " + totalRev + " kWh", 35, 85);
+ctx.fillText("Electricité photovoltaique revendue: " + totalRev + " kWh", 18, 43);
 
 // Conversion du canvas en image PNG
 const donutImage = donutCanvas.toDataURL("image/png");
 
 // Positionnement du graphique en anneau dans le PDF
-const donutChartWidth = pageWidth - 30; // Largeur du graphique dans le PDF
-const donutChartHeight = (donutCanvas.height * donutChartWidth) / donutCanvas.width; // Respect du ratio
+// On applique la réduction lors de l'insertion si nécessaire (les dimensions sont déjà réduites)
+const donutChartWidth = (pageWidth - 30) * 0.5; 
+const donutChartHeight = (donutCanvas.height * donutChartWidth) / donutCanvas.width;
 const yPosDonut = yPosChart + chartHeight + 10; // 10 mm sous le graphique en barre
 pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight);
 
-  {
   // -------------------------------
   // PAGE 4 : Tableau "Projection sur 20 ans"
   // -------------------------------
