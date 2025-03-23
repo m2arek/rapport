@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v747</title> 
+  <title>FRH PRO  - v748</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2261,13 +2261,11 @@ if (mapCaptureDataURL) {
 
   // -------------------------------
 // -------------------------------
-// -------------------------------
-// -------------------------------
 // PAGE 3 : Graphique en barre + Graphique en anneau (donut chart) avec légende à droite et pourcentages
 // -------------------------------
 pdf.addPage();
 pdf.setFontSize(14);
-pdf.text("Graphique des productions", pageWidth / 2, 85, { align: "center" });
+pdf.text("Graphique des productions", pageWidth / 2, 70, { align: "center" });
 
 // --- Partie existante : Affichage du graphique en barre ---
 let chartImage = "";
@@ -2294,9 +2292,9 @@ if (chartImage) {
 }
 
 // --- Nouvelle partie : Création du donut avec légende à droite et pourcentages ---
-// On crée un canvas avec un repère virtuel élargi pour la légende
+// On crée un canvas avec un repère virtuel élargi pour laisser plus d'espace à la légende
 const scaleFactor = 2;         
-const virtualWidth = 600;      // largeur virtuelle agrandie pour laisser plus d'espace à la légende
+const virtualWidth = 600;      // largeur virtuelle agrandie
 const virtualHeight = 150;     // hauteur virtuelle
 const donutCanvas = document.createElement("canvas");
 donutCanvas.width = virtualWidth * scaleFactor;   // 1200 px
@@ -2326,10 +2324,11 @@ const donutTotal = consoAvecCentrale + totalAuto + totalRev;
 
 // Dessiner le donut dans la partie gauche du canvas
 // On réserve la zone gauche (150x150) pour le donut
-const donutCenterX = 75;           // Centre dans la zone gauche
+// Les dimensions du donut sont augmentées de 30% par rapport aux valeurs précédentes
+const donutCenterX = 90;           // centre ajusté (précédemment 75)
 const donutCenterY = virtualHeight / 2; // 75
-const outerRadius = 60;            // Rayon extérieur agrandi de 20% (anciennement 50)
-const innerRadius = 30;            // Rayon intérieur agrandi de 20% (anciennement 25)
+const outerRadius = 60 * 1.3;            // 60 -> 78
+const innerRadius = 30 * 1.3;            // 30 -> 39
 
 let startAngle = 0;
 function drawSegment(value, color) {
@@ -2349,7 +2348,7 @@ function drawSegment(value, color) {
   const textY = donutCenterY + textRadius * Math.sin(midAngle);
   const percentText = ((value / donutTotal) * 100).toFixed(1) + "%";
   ctx.fillStyle = "black";
-  ctx.font = "10px Arial";
+  ctx.font = "13px Arial";  // police augmentée de 30%
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText(percentText, textX, textY);
@@ -2369,22 +2368,22 @@ ctx.fill();
 // Ajout de la légende à droite du donut
 ctx.textAlign = "left";
 ctx.textBaseline = "middle";
-ctx.font = "10px Arial";
-const legendBoxSize = 12;
-const legendX = 180; // position horizontale de la légende dans la partie droite
+ctx.font = "13px Arial";  // police augmentée
+const legendBoxSize = 12 * 1.3;  // 15.6, arrondissons à 16
+const legendX = 220; // ajustement pour laisser suffisamment d'espace
 let legendY = 30;    // première ligne de légende
 ctx.fillStyle = "lightcoral";
 ctx.fillRect(legendX, legendY - legendBoxSize / 2, legendBoxSize, legendBoxSize);
 ctx.fillStyle = "black";
 ctx.fillText("Consommation electrique avec centrale: " + consoAvecCentrale + " kWh", legendX + legendBoxSize + 5, legendY);
 
-legendY += 30;
+legendY += 40;  // augmenter l'espacement vertical
 ctx.fillStyle = "lightgreen";
 ctx.fillRect(legendX, legendY - legendBoxSize / 2, legendBoxSize, legendBoxSize);
 ctx.fillStyle = "black";
 ctx.fillText("Electricité photovoltaique utilisée: " + totalAuto + " kWh", legendX + legendBoxSize + 5, legendY);
 
-legendY += 30;
+legendY += 40;  // augmenter l'espacement vertical
 ctx.fillStyle = "lightskyblue";
 ctx.fillRect(legendX, legendY - legendBoxSize / 2, legendBoxSize, legendBoxSize);
 ctx.fillStyle = "black";
