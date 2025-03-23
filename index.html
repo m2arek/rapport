@@ -6,7 +6,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v744</title> 
+  <title>FRH PRO  - v745</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2261,6 +2261,7 @@ if (mapCaptureDataURL) {
 
   // -------------------------------
 // -------------------------------
+// -------------------------------
 // PAGE 3 : Graphique en barre + Graphique en anneau (donut chart) avec légende à droite et pourcentages
 // -------------------------------
 pdf.addPage();
@@ -2278,7 +2279,6 @@ if (reportType === "selection") {
     chartImage = monthlyBarChart.toBase64Image();
   }
 }
-
 const chartWidth = pageWidth - 30;
 let chartHeight, yPosChart;
 if (chartImage) {
@@ -2292,12 +2292,16 @@ if (chartImage) {
   chartHeight = 50;
 }
 
-// --- Nouvelle partie : Création du donut avec légende à droite et affichage des pourcentages ---
-// On utilise un canvas de 300x150 pixels (ratio 2:1) pour éviter toute déformation
+// --- Nouvelle partie : Création du donut avec légende à droite et pourcentages ---
+// Pour éviter que la légende ne soit coupée, on crée un canvas avec une largeur virtuelle agrandie (400x150)
+const scaleFactor = 2;         // pour une meilleure résolution
+const virtualWidth = 400;      // largeur virtuelle agrandie pour la légende
+const virtualHeight = 150;     // hauteur virtuelle
 const donutCanvas = document.createElement("canvas");
-donutCanvas.width = 300;
-donutCanvas.height = 150;
+donutCanvas.width = virtualWidth * scaleFactor;   // 800 px
+donutCanvas.height = virtualHeight * scaleFactor; // 300 px
 const ctx = donutCanvas.getContext("2d");
+ctx.scale(scaleFactor, scaleFactor); // travaille dans un repère virtuel de 400x150
 
 // Extraction des données depuis le tableau "Détails par mois (année 1)"
 const monthlyTableEl = document.getElementById(monthlyTableId);
@@ -2320,11 +2324,11 @@ const consoAvecCentrale = totalConso - totalAuto;
 const donutTotal = consoAvecCentrale + totalAuto + totalRev;
 
 // Dessiner le donut dans la partie gauche du canvas
-// On réserve une zone de 150x150 pixels pour le donut
-const donutCenterX = 75;           // Centre dans la zone gauche
-const donutCenterY = 75;           // Centre vertical (150/2)
-const outerRadius = 50;            // Rayon extérieur
-const innerRadius = 25;            // Rayon intérieur
+// On réserve la zone gauche (150x150) pour le donut
+const donutCenterX = 75;           // centre dans la zone gauche (inchangé)
+const donutCenterY = virtualHeight / 2; // 75
+const outerRadius = 50;            // rayon extérieur (inchangé)
+const innerRadius = 25;            // rayon intérieur (inchangé)
 
 let startAngle = 0;
 function drawSegment(value, color) {
@@ -2339,7 +2343,7 @@ function drawSegment(value, color) {
   
   // Calcul et affichage du pourcentage au centre de la portion
   const midAngle = startAngle + segmentAngle / 2;
-  const textRadius = (outerRadius + innerRadius) / 2; // position médiane
+  const textRadius = (outerRadius + innerRadius) / 2;
   const textX = donutCenterX + textRadius * Math.cos(midAngle);
   const textY = donutCenterY + textRadius * Math.sin(midAngle);
   const percentText = ((value / donutTotal) * 100).toFixed(1) + "%";
@@ -2361,14 +2365,13 @@ ctx.arc(donutCenterX, donutCenterY, innerRadius, 0, 2 * Math.PI);
 ctx.fillStyle = "white";
 ctx.fill();
 
-// Ajout de la légende à droite du donut
-// La zone de légende occupe la partie droite du canvas (à partir de x = 160)
+// Ajout de la légende à droite du donut dans la zone élargie
 ctx.textAlign = "left";
 ctx.textBaseline = "middle";
 ctx.font = "10px Arial";
 const legendBoxSize = 12;
-const legendX = 160;
-let legendY = 40; // première ligne de légende
+const legendX = 180; // position horizontale de la légende (dans la partie droite du canvas élargi)
+let legendY = 30;    // première ligne de légende
 ctx.fillStyle = "lightcoral";
 ctx.fillRect(legendX, legendY - legendBoxSize / 2, legendBoxSize, legendBoxSize);
 ctx.fillStyle = "black";
@@ -2389,10 +2392,10 @@ ctx.fillText("Electricité photovoltaique revendue: " + totalRev + " kWh", legen
 // Conversion du canvas en image PNG
 const donutImage = donutCanvas.toDataURL("image/png");
 
-// Positionnement du donut dans le PDF
-// Le canvas a un ratio de 300:150 (2:1), on le redimensionne pour conserver ce ratio.
-const donutChartWidth = (pageWidth - 30) * 0.5; 
-const donutChartHeight = donutChartWidth / 2;
+// Positionnement du donut avec légende dans le PDF
+// Le canvas a un ratio de 400:150, donc pour préserver ce ratio on calcule la hauteur en fonction de la largeur d'insertion
+const donutChartWidth = (pageWidth - 30) * 0.6; 
+const donutChartHeight = donutChartWidth * (virtualHeight / virtualWidth); // virtualHeight/virtualWidth = 150/400 = 0.375
 const yPosDonut = yPosChart + chartHeight + 10; // 10 mm sous le graphique en barre
 pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight);
 
