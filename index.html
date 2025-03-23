@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v714</title> 
+  <title>FRH PRO  - v730</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2297,7 +2297,7 @@ if (chartImage) {
   // -------------------------------
   pdf.addPage();
   pdf.setFontSize(14);
-  pdf.text("Projection sur 20 ans", pageWidth / 2, 40, { align: "center" });
+  pdf.text("Projection sur 20 ans", pageWidth / 2, 60, { align: "center" });
   const projectionTableEl = document.getElementById(projectionTableId);
   if (projectionTableEl) {
     const tempPdf2 = new jsPDF("p", "mm", "a4");
@@ -2308,7 +2308,7 @@ if (chartImage) {
       headStyles: { fillColor: [22, 160, 133], textColor: 255, fontSize: 9 }
     });
     const projTableHeight = tempPdf2.lastAutoTable ? tempPdf2.lastAutoTable.finalY : 0;
-    const newStartY2 = (pageHeight - projTableHeight) / 2;
+    const newStartY2 = ((pageHeight - projTableHeight) / 2)+40;
     pdf.autoTable({
       html: projectionTableEl,
       startY: newStartY2,
@@ -2324,7 +2324,7 @@ if (chartImage) {
   // -------------------------------
   // Positionner le bloc 20 mm sous la fin du tableau Projection
   const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
-  const synthTitleY = projEndY + 20; // 20 mm sous le tableau
+  const synthTitleY = 80; // 20 mm sous le tableau
   pdf.setFontSize(14);
   pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
   
