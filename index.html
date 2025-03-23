@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v713</title> 
+  <title>FRH PRO  - v714</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2149,134 +2149,114 @@ if (mapCaptureDataURL) {
   pdf.text("Aucune capture de carte disponible", pageWidth / 2, yPos, { align: "center" });
 }
 
-  // -------------------------------
-  // PAGE 2 : Tableau "Détails par mois (année 1)" et Cadre "Informations sur la production"
-  // -------------------------------
-  {
-    pdf.addPage();
-    pdf.setFontSize(12);
-    pdf.text("Détails par mois (année 1)", pageWidth / 2, 60, { align: "center" });
+{
+  pdf.addPage();
+  // Titre principal de la page
+  pdf.setFontSize(12);
+  pdf.text("Détails par mois (année 1)", pageWidth / 2, 60, { align: "center" });
   
-    const monthlyTableEl = document.getElementById(monthlyTableId);
-    if (monthlyTableEl) {
-      const tempPdf = new jsPDF("p", "mm", "a4");
-      tempPdf.autoTable({
-        html: monthlyTableEl,
-        startY: 0,
-        styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
-        headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
-        columnStyles: {
-          0: { cellWidth: 15 },
-          1: { cellWidth: 15 },
-          2: { cellWidth: 15 },
-          3: { cellWidth: 15 },
-          4: { cellWidth: 15 },
-          5: { cellWidth: 18 },
-          6: { cellWidth: 18 },
-          7: { cellWidth: 18 },
-          8: { cellWidth: 15 },
-          9: { cellWidth: 15 },
-          10: { cellWidth: 12 },
-          11: { cellWidth: 12 },
-          12: { cellWidth: 12 }
-        }
-      });
-      const tableHeight = tempPdf.lastAutoTable ? tempPdf.lastAutoTable.finalY : 0;
-      const newStartY = (pageHeight - tableHeight) / 2 - 20;
-      pdf.autoTable({
-        html: monthlyTableEl,
-        startY: newStartY,
-        margin: { left: 5 },
-        styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
-        headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
-        columnStyles: {
-          0: { cellWidth: 15 },
-          1: { cellWidth: 15 },
-          2: { cellWidth: 15 },
-          3: { cellWidth: 15 },
-          4: { cellWidth: 15 },
-          5: { cellWidth: 18 },
-          6: { cellWidth: 18 },
-          7: { cellWidth: 18 },
-          8: { cellWidth: 15 },
-          9: { cellWidth: 15 },
-          10: { cellWidth: 12 },
-          11: { cellWidth: 12 },
-          12: { cellWidth: 12 }
-        }
-      });
-    } else {
-      pdf.text("Tableau Détails par mois non disponible", 10, 30);
-    }
+  // Récupération de l'élément du tableau mensuel
+  const monthlyTableEl = document.getElementById(monthlyTableId);
   
-    let totalConso = "-";
-    let totalProd  = "-";
-    let totalAuto  = "-";
-    let totalRev   = "-";
-    let totalEcon  = "-";
-    if (monthlyTableEl) {
-      const tfoot = monthlyTableEl.querySelector("tfoot");
-      if (tfoot) {
-        const lastRow = tfoot.querySelector("tr");
-        if (lastRow) {
-          const cellConso = lastRow.querySelector("td:nth-child(2)");
-          if (cellConso) totalConso = cellConso.textContent.trim();
-          const cellProd = lastRow.querySelector("td:nth-child(3)");
-          if (cellProd) totalProd = cellProd.textContent.trim();
-          const cellAuto = lastRow.querySelector("td:nth-child(4)");
-          if (cellAuto) totalAuto = cellAuto.textContent.trim();
-          const cellRev = lastRow.querySelector("td:nth-child(5)");
-          if (cellRev) totalRev = cellRev.textContent.trim();
-          const cellEcon = lastRow.querySelector("td:nth-child(11)");
-          if (cellEcon) totalEcon = cellEcon.textContent.trim();
-        }
+  // Extraction des totaux depuis le tableau, si disponible
+  let totalConso = "-";
+  let totalProd  = "-";
+  let totalAuto  = "-";
+  let totalRev   = "-";
+  let totalEcon  = "-";
+  if (monthlyTableEl) {
+    const tfoot = monthlyTableEl.querySelector("tfoot");
+    if (tfoot) {
+      const lastRow = tfoot.querySelector("tr");
+      if (lastRow) {
+        const cellConso = lastRow.querySelector("td:nth-child(2)");
+        if (cellConso) totalConso = cellConso.textContent.trim();
+        const cellProd = lastRow.querySelector("td:nth-child(3)");
+        if (cellProd) totalProd = cellProd.textContent.trim();
+        const cellAuto = lastRow.querySelector("td:nth-child(4)");
+        if (cellAuto) totalAuto = cellAuto.textContent.trim();
+        const cellRev = lastRow.querySelector("td:nth-child(5)");
+        if (cellRev) totalRev = cellRev.textContent.trim();
+        const cellEcon = lastRow.querySelector("td:nth-child(11)");
+        if (cellEcon) totalEcon = cellEcon.textContent.trim();
       }
     }
-  
-    const lastTableY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
-    const titleY = lastTableY + 15;
-    pdf.setFontSize(14);
-    pdf.text("Informations sur la production", pageWidth / 2, titleY, { align: "center" });
-  
-    const containerX = 15;
-    const containerY = titleY + 5;
-    const containerWidth = pageWidth - 30;
-    const containerHeight = 3 * 8 + 2;
-    pdf.setLineWidth(0.5);
-    pdf.setDrawColor(150);
-    pdf.setFillColor(230,230,230);
-    pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
-  
-    const boxPadding = 2;
-    const lineHeight = 6;
-    const fieldX = containerX + boxPadding;
-    const fieldWidthFull = containerWidth - 2 * boxPadding;
-    const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
-  
-    const fieldY1 = containerY + boxPadding;
-    pdf.setFillColor(255,255,255);
-    pdf.roundedRect(fieldX, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
-    pdf.setFontSize(10);
-    pdf.text("Votre consommation annuelle Kwh: " + totalConso, fieldX + 1, fieldY1 + lineHeight - 2);
-    const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
-    pdf.setFillColor(255,255,255);
-    pdf.roundedRect(fieldX2, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
-    pdf.text("Production annuelle Kwh: " + totalProd, fieldX2 + 1, fieldY1 + lineHeight - 2);
-  
-    const fieldY2 = fieldY1 + lineHeight + 2;
-    pdf.setFillColor(255,255,255);
-    pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-    pdf.text("Electricité produite consommée Kwh: " + totalAuto, fieldX + 1, fieldY2 + lineHeight - 2);
-    pdf.setFillColor(255,255,255);
-    pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-    pdf.text("Electricité produite revendue Kwh: " + totalRev, fieldX2 + 1, fieldY2 + lineHeight - 2);
-  
-    const fieldY3 = fieldY2 + lineHeight + 2;
-    pdf.setFillColor(255,255,255);
-    pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
-    pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
   }
   
+  // Bloc "Informations sur la production" placé juste sous le titre de la page
+  const infoTitleY = 70; // Position du titre du bloc info
+  pdf.setFontSize(14);
+  pdf.text("Informations sur la production", pageWidth / 2, infoTitleY, { align: "center" });
+  
+  const containerX = 15;
+  const containerY = infoTitleY + 5; // 5 mm sous le titre "Informations sur la production"
+  const containerWidth = pageWidth - 30;
+  const containerHeight = 3 * 8 + 2; // hauteur calculée sur 3 lignes
+  pdf.setLineWidth(0.5);
+  pdf.setDrawColor(150);
+  pdf.setFillColor(230, 230, 230);
+  pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
+  
+  const boxPadding = 2;
+  const lineHeight = 6;
+  const fieldX = containerX + boxPadding;
+  const fieldWidthFull = containerWidth - 2 * boxPadding;
+  const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
+  
+  const fieldY1 = containerY + boxPadding;
+  pdf.setFillColor(255, 255, 255);
+  pdf.roundedRect(fieldX, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
+  pdf.setFontSize(10);
+  pdf.text("Votre consommation annuelle Kwh: " + totalConso, fieldX + 1, fieldY1 + lineHeight - 2);
+  
+  const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+  pdf.setFillColor(255, 255, 255);
+  pdf.roundedRect(fieldX2, fieldY1, fieldWidthHalf, lineHeight, 2, 2, "DF");
+  pdf.text("Production annuelle Kwh: " + totalProd, fieldX2 + 1, fieldY1 + lineHeight - 2);
+  
+  const fieldY2 = fieldY1 + lineHeight + 2;
+  pdf.setFillColor(255, 255, 255);
+  pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+  pdf.text("Electricité produite consommée Kwh: " + totalAuto, fieldX + 1, fieldY2 + lineHeight - 2);
+  pdf.setFillColor(255, 255, 255);
+  pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+  pdf.text("Electricité produite revendue Kwh: " + totalRev, fieldX2 + 1, fieldY2 + lineHeight - 2);
+  
+  const fieldY3 = fieldY2 + lineHeight + 2;
+  pdf.setFillColor(255, 255, 255);
+  pdf.roundedRect(fieldX, fieldY3, fieldWidthFull, lineHeight, 2, 2, "DF");
+  pdf.text("Economies réalisés avec la centrale %: " + totalEcon, fieldX + 1, fieldY3 + lineHeight - 2);
+  
+  // Tableau "Détails par mois (année 1)" déplacé sous le bloc "Informations sur la production"
+  const tableStartY = containerY + containerHeight + 15; // 15 mm sous le bloc info
+  if (monthlyTableEl) {
+    pdf.autoTable({
+      html: monthlyTableEl,
+      startY: tableStartY,
+      margin: { left: 5 },
+      styles: { fontSize: 7, cellPadding: 2, overflow: "linebreak", halign: "center", valign: "middle" },
+      headStyles: { fillColor: [0, 92, 160], textColor: 255, fontSize: 7, halign: "center", valign: "middle" },
+      columnStyles: {
+        0: { cellWidth: 15 },
+        1: { cellWidth: 15 },
+        2: { cellWidth: 15 },
+        3: { cellWidth: 15 },
+        4: { cellWidth: 15 },
+        5: { cellWidth: 18 },
+        6: { cellWidth: 18 },
+        7: { cellWidth: 18 },
+        8: { cellWidth: 15 },
+        9: { cellWidth: 15 },
+        10: { cellWidth: 12 },
+        11: { cellWidth: 12 },
+        12: { cellWidth: 12 }
+      }
+    });
+  } else {
+    pdf.text("Tableau Détails par mois non disponible", 10, tableStartY);
+  }
+}
+
   // -------------------------------
 // PAGE 3 : Graphique sans légende
 // -------------------------------
