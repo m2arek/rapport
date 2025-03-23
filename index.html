@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v732</title> 
+  <title>FRH PRO  - v733</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2398,7 +2398,7 @@ if (chartImage) {
   // -------------------------------
   pdf.addPage();
   pdf.setFontSize(14);
-  pdf.text("Plan de trésorerie (Annuel)", pageWidth / 2, 40, { align: "center" });
+  pdf.text("Plan de trésorerie (Annuel)", pageWidth / 2, 60, { align: "center" });
   const tresorerieTableEl = document.getElementById("planTresorerieTable");
   if (tresorerieTableEl) {
     const tempPdf3 = new jsPDF("p", "mm", "a4");
