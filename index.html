@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v731</title> 
+  <title>FRH PRO  - v732</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2324,7 +2324,7 @@ if (chartImage) {
   // -------------------------------
   // Positionner le bloc 20 mm sous la fin du tableau Projection
   const projEndY = pdf.lastAutoTable ? pdf.lastAutoTable.finalY : 100;
-  const synthTitleY = 60; // titre synthese du resultat 60 mm du debut
+  const synthTitleY = 70; // titre synthese du resultat 60 mm du debut
   pdf.setFontSize(14);
   pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
   
