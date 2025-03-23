@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v720</title> 
+  <title>FRH PRO  - v721</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2294,23 +2294,25 @@ if (chartImage) {
   {
   // -------------------------------
   // PAGE 4 : Projection sur 20 ans et Synthèse des résultats
+  // PAGE 4 : Projection sur 20 ans et Synthèse des résultats
 
+// Ajout d'une nouvelle page
 pdf.addPage();
 
 // --- Titre "Projection sur 20 ans" déplacé de 20 mm ---
 pdf.setFontSize(14);
 pdf.text("Projection sur 20 ans", pageWidth / 2, 60, { align: "center" });
 
-// --- Bloc "Synthèse des résultats" placé sous le titre ---
-const synthTitleY = 70; // Position du titre du bloc synthèse (10 mm sous le titre)
+// --- Bloc "Synthèse des résultats" placé sous le titre "Projection sur 20 ans" ---
+const synthTitleY = 70; // Position du titre du bloc synthèse (10 mm sous le titre précédent)
 pdf.setFontSize(14);
 pdf.text("Synthèse des résultats", pageWidth / 2, synthTitleY, { align: "center" });
 
-// Conteneur pour le bloc "Synthèse des résultats"
+// Définition du conteneur pour le bloc "Synthèse des résultats"
 const synthContainerX = 15;
 const synthContainerY = synthTitleY + 5; // 5 mm sous le titre "Synthèse des résultats"
 const synthContainerWidth = pageWidth - 30;
-const synthContainerHeight = 26;  // Par exemple, 26 mm pour 3 lignes
+const synthContainerHeight = 26;  // Exemple : 26 mm pour 3 lignes
 pdf.setLineWidth(0.5);
 pdf.setDrawColor(150);
 pdf.setFillColor(230, 230, 230);
@@ -2340,19 +2342,19 @@ pdf.text("Tarif de rachat du surplus (€/kWh): " + tarifRachat, synthFieldX2 + 
 const synthRow2Y = synthRow1Y + synthLineHeight + 2;
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-const totalEconomies = document.getElementById("totalEconomies") 
-  ? document.getElementById("totalEconomies").textContent.trim() 
+const totalEconomies = document.getElementById("totalEconomies")
+  ? document.getElementById("totalEconomies").textContent.trim()
   : "-";
 pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
 
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(synthFieldX2, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
 let primeValue = (reportType === "selection")
-  ? (document.getElementById("primeValueForced") 
-      ? document.getElementById("primeValueForced").textContent.trim() 
+  ? (document.getElementById("primeValueForced")
+      ? document.getElementById("primeValueForced").textContent.trim()
       : "-")
-  : (document.getElementById("primeValue") 
-      ? document.getElementById("primeValue").textContent.trim() 
+  : (document.getElementById("primeValue")
+      ? document.getElementById("primeValue").textContent.trim()
       : "-");
 primeValue = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
 pdf.text("Prime à l'autoconsommation €: " + primeValue, synthFieldX2 + 1, synthRow2Y + synthLineHeight - 2);
@@ -2362,11 +2364,11 @@ const synthRow3Y = synthRow2Y + synthLineHeight + 2;
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(synthFieldX, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
 let coutNet = (reportType === "selection")
-  ? (document.getElementById("coutReelInstallationForced") 
-      ? document.getElementById("coutReelInstallationForced").textContent.trim() 
+  ? (document.getElementById("coutReelInstallationForced")
+      ? document.getElementById("coutReelInstallationForced").textContent.trim()
       : "-")
-  : (document.getElementById("coutReelInstallation") 
-      ? document.getElementById("coutReelInstallation").textContent.trim() 
+  : (document.getElementById("coutReelInstallation")
+      ? document.getElementById("coutReelInstallation").textContent.trim()
       : "-");
 coutNet = String(coutNet).replace(/[\u00A0\u202F]/g, " ");
 pdf.text("Cout net de la centrale €: " + coutNet, synthFieldX + 1, synthRow3Y + synthLineHeight - 2);
@@ -2374,11 +2376,11 @@ pdf.text("Cout net de la centrale €: " + coutNet, synthFieldX + 1, synthRow3Y 
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(synthFieldX2, synthRow3Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
 const roiVal = (reportType === "selection")
-  ? (document.getElementById("roiResultForced") 
-      ? document.getElementById("roiResultForced").textContent.trim() 
+  ? (document.getElementById("roiResultForced")
+      ? document.getElementById("roiResultForced").textContent.trim()
       : "-")
-  : (document.getElementById("roiResult") 
-      ? document.getElementById("roiResult").textContent.trim() 
+  : (document.getElementById("roiResult")
+      ? document.getElementById("roiResult").textContent.trim()
       : "-");
 pdf.text("Retour sur investissement années: " + roiVal, synthFieldX2 + 1, synthRow3Y + synthLineHeight - 2);
 
