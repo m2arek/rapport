@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO formulaire  - v712</title> 
+  <title>FRH PRO  - v713</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2065,89 +2065,90 @@
   const pageHeight = pdf.internal.pageSize.getHeight();
 
   // -------------------------------
-  // PAGE 1 : Capture de carte et Informations sur l'installation
-  // -------------------------------
-  pdf.setFontSize(16);
-  pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
-  const companyName = document.getElementById("companyName")?.value || "";
-  pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
-  
-  let yPos, imgWidth, imgHeight;
-  if (mapCaptureDataURL) {
-    imgWidth = pageWidth - 30;
-    imgHeight = imgWidth * 0.6;
-    yPos = (pageHeight - imgHeight) / 2 - 20;
-    pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
-  } else {
-    yPos = pageHeight / 2;
-    imgHeight = 0;
-    pdf.text("Aucune capture de carte disponible", pageWidth / 2, pageHeight / 2, { align: "center" });
-  }
-  
-  // Décalage de 15 mm vers le bas pour le bloc d'informations
-  const detailsY = yPos + imgHeight + 25;
-  const infoTitleY = yPos + imgHeight + 15;
-  pdf.setFontSize(14);
-  pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
-  
-  const containerX = 15;
-  const containerY = detailsY - 5;
-  const containerWidth = pageWidth - 30;
-  const containerHeight = 34;
-  pdf.setLineWidth(0.5);
-  pdf.setDrawColor(150);
-  pdf.setFillColor(230,230,230);
-  pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
-  
-  const boxPadding = 2;
-  const lineHeight = 6;
-  const fieldX = containerX + boxPadding;
-  const fieldWidthFull = containerWidth - 2 * boxPadding;
-  const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
-  
-  const fieldY1 = containerY + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
-  pdf.setFontSize(10);
-  pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
-  
-  const fieldY2 = fieldY1 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
-  const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
-  
-  const fieldY3 = fieldY2 + lineHeight + 2;
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
-  pdf.setFillColor(255,255,255);
-  pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
-  let prodStr = document.getElementById("productible").value;
-  prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
-  pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
-  
-  // Ligne 4 : Puissance préconisée et Nombre de modules en deux colonnes
+// PAGE 1 : Titre, Informations sur l'installation et Capture de carte
+// -------------------------------
+
+// Titre et nom de la société
+pdf.setFontSize(16);
+pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
+const companyName = document.getElementById("companyName")?.value || "";
+pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
+
+// Bloc Informations sur l'installation placé juste sous le header
+const infoTitleY = 80; // Position verticale du titre info
+pdf.setFontSize(14);
+pdf.text("Informations sur l'installation", pageWidth / 2, infoTitleY, { align: "center" });
+
+// Création du conteneur d'informations (par exemple 10 mm sous le titre info)
+const containerX = 15;
+const containerY = infoTitleY + 10;
+const containerWidth = pageWidth - 30;
+const containerHeight = 34;
+pdf.setLineWidth(0.5);
+pdf.setDrawColor(150);
+pdf.setFillColor(230, 230, 230);
+pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
+
+// Remplissage du conteneur
+const boxPadding = 2;
+const lineHeight = 6;
+const fieldX = containerX + boxPadding;
+const fieldWidthFull = containerWidth - 2 * boxPadding;
+const fieldWidthHalf = (containerWidth - 3 * boxPadding) / 2;
+
+const fieldY1 = containerY + boxPadding;
+pdf.setFillColor(255, 255, 255);
+pdf.roundedRect(fieldX, fieldY1, fieldWidthFull, lineHeight, 2, 2, "DF");
+pdf.setFontSize(10);
+pdf.text("Adresse: " + document.getElementById("address").value, fieldX + 1, fieldY1 + lineHeight - 2);
+
+const fieldY2 = fieldY1 + lineHeight + 2;
+pdf.setFillColor(255, 255, 255);
+pdf.roundedRect(fieldX, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Latitude: " + document.getElementById("latitudeIrr").value, fieldX + 1, fieldY2 + lineHeight - 2);
+const fieldX2 = fieldX + fieldWidthHalf + boxPadding;
+pdf.setFillColor(255, 255, 255);
+pdf.roundedRect(fieldX2, fieldY2, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 + 1, fieldY2 + lineHeight - 2);
+
+const fieldY3 = fieldY2 + lineHeight + 2;
+pdf.setFillColor(255, 255, 255);
+pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
+pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
+pdf.setFillColor(255, 255, 255);
+pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
+let prodStr = document.getElementById("productible").value;
+prodStr = prodStr.replace(/[\u00A0\u202F]/g, " ");
+pdf.text("Productible kWh/kWc: " + prodStr, fieldX2 + 1, fieldY3 + lineHeight - 2);
+
 const fieldY4 = fieldY3 + lineHeight + 2;
-pdf.setFillColor(255,255,255);
+pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(fieldX, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
-// Choix de la donnée en fonction du reportType ("selection" ou "standard")
 const puissanceRecoVal = (reportType === "selection")
   ? document.getElementById("puissanceRecoForced").textContent
   : document.getElementById("puissanceReco").textContent;
 pdf.text("Puissance préconisée Kwc: " + puissanceRecoVal, fieldX + 1, fieldY4 + lineHeight - 2);
 
-pdf.setFillColor(255,255,255);
+pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(fieldX2, fieldY4, fieldWidthHalf, lineHeight, 2, 2, "DF");
 const nombreModulesVal = (reportType === "selection")
   ? document.getElementById("nombreModulesForced").textContent
   : document.getElementById("nombreModules").textContent;
 pdf.text("Nombre de modules: " + nombreModulesVal, fieldX2 + 1, fieldY4 + lineHeight - 2);
 
-  
+// Positionnement de l'image : descendre l'image pour qu'elle apparaisse sous le bloc d'informations
+let yPos, imgWidth, imgHeight;
+if (mapCaptureDataURL) {
+  imgWidth = pageWidth - 30;
+  imgHeight = imgWidth * 0.6;
+  yPos = containerY + containerHeight + 15; // 15 mm sous le conteneur d'informations
+  pdf.addImage(mapCaptureDataURL, mapCaptureFormat || "PNG", 15, yPos, imgWidth, imgHeight);
+} else {
+  yPos = containerY + containerHeight + 15;
+  imgHeight = 0;
+  pdf.text("Aucune capture de carte disponible", pageWidth / 2, yPos, { align: "center" });
+}
+
   // -------------------------------
   // PAGE 2 : Tableau "Détails par mois (année 1)" et Cadre "Informations sur la production"
   // -------------------------------
