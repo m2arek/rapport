@@ -5,7 +5,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v735</title> 
+  <title>FRH PRO  - v736</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2258,14 +2258,14 @@ if (mapCaptureDataURL) {
   }
 }
 
-  // -------------------------------
-// PAGE 3 : Graphique sans légende
+// -------------------------------
+// PAGE 3 : Graphique sans légende + Graphique en anneau (donut chart)
 // -------------------------------
 pdf.addPage();
 pdf.setFontSize(14);
 pdf.text("Graphique des productions", pageWidth / 2, 70, { align: "center" });
 
-// Récupération de l'image du graphique en fonction du type choisi
+// --- Partie existante : Affichage du graphique en barre ---
 let chartImage = "";
 if (reportType === "selection") {
   if (monthlyBarChartForced && typeof monthlyBarChartForced.toBase64Image === "function") {
@@ -2277,19 +2277,119 @@ if (reportType === "selection") {
   }
 }
 
+const chartWidth = pageWidth - 30;
+let chartHeight, yPosChart;
 if (chartImage) {
-  // On peut aussi obtenir le canvas via toDataURL si nécessaire :
-  // const chartImage = document.getElementById(chartId).toDataURL("image/png");
-  const chartCanvas = document.createElement("canvas"); // Création d'un canvas temporaire pour les dimensions
-  // Ici, nous utilisons des dimensions fixes, vous pouvez les adapter si besoin
+  // Utilisation d'un canvas temporaire pour déterminer la hauteur (dimensions fixes)
+  const chartCanvas = document.createElement("canvas");
   const chartHeightPx = 300; 
-  const chartHeight = chartHeightPx * 0.264583; // conversion px -> mm (approximative)
-  const chartWidth = pageWidth - 30;
-  const yPosChart = (pageHeight - chartHeight) / 2;
+  chartHeight = chartHeightPx * 0.264583; // conversion px -> mm (approximative)
+  yPosChart = (pageHeight - chartHeight) / 2;
   pdf.addImage(chartImage, "PNG", 15, yPosChart, chartWidth, chartHeight);
 } else {
   pdf.text("Graphique non disponible", 10, 30);
+  yPosChart = 80; // Valeur par défaut si le graphique n'est pas disponible
+  chartHeight = 50; // Hauteur par défaut pour le calcul
 }
+
+// --- Nouvelle partie : Ajout du graphique en anneau (donut chart) ---
+// Extraction des données depuis le tableau "Détails par mois (année 1)"
+const monthlyTableEl = document.getElementById(monthlyTableId);
+let totalConso = 0, totalAuto = 0, totalRev = 0;
+if (monthlyTableEl) {
+  const tfoot = monthlyTableEl.querySelector("tfoot");
+  if (tfoot) {
+    const lastRow = tfoot.querySelector("tr");
+    if (lastRow) {
+      const cellConso = lastRow.querySelector("td:nth-child(2)");
+      if (cellConso) totalConso = parseFloat(cellConso.textContent.trim());
+      const cellAuto = lastRow.querySelector("td:nth-child(4)");
+      if (cellAuto) totalAuto = parseFloat(cellAuto.textContent.trim());
+      const cellRev = lastRow.querySelector("td:nth-child(5)");
+      if (cellRev) totalRev = parseFloat(cellRev.textContent.trim());
+    }
+  }
+}
+
+// Calcul de la valeur "Consommation electrique avec centrale"
+// (Consommation totale moins autoconsommation)
+const consoAvecCentrale = totalConso - totalAuto;
+const donutTotal = consoAvecCentrale + totalAuto + totalRev;
+
+// Création du graphique en anneau via un canvas
+const donutCanvas = document.createElement("canvas");
+donutCanvas.width = 400;
+donutCanvas.height = 400;
+const ctx = donutCanvas.getContext("2d");
+const centerX = donutCanvas.width / 2;
+const centerY = donutCanvas.height / 2;
+const outerRadius = 150; // Rayon extérieur
+const innerRadius = 80;  // Rayon intérieur pour l'effet anneau
+
+// Dessiner les segments
+let startAngle = 0;
+let endAngle = 0;
+// Portion 1 (rouge) : "Consommation electrique avec centrale"
+endAngle = startAngle + (consoAvecCentrale / donutTotal) * 2 * Math.PI;
+ctx.beginPath();
+ctx.moveTo(centerX, centerY);
+ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+ctx.closePath();
+ctx.fillStyle = "red";
+ctx.fill();
+startAngle = endAngle;
+
+// Portion 2 (vert) : "Electricité photovoltaique utilisée" (autoconsommation)
+endAngle = startAngle + (totalAuto / donutTotal) * 2 * Math.PI;
+ctx.beginPath();
+ctx.moveTo(centerX, centerY);
+ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+ctx.closePath();
+ctx.fillStyle = "green";
+ctx.fill();
+startAngle = endAngle;
+
+// Portion 3 (bleu) : "Electricité photovoltaique revendue"
+endAngle = startAngle + (totalRev / donutTotal) * 2 * Math.PI;
+ctx.beginPath();
+ctx.moveTo(centerX, centerY);
+ctx.arc(centerX, centerY, outerRadius, startAngle, endAngle);
+ctx.closePath();
+ctx.fillStyle = "blue";
+ctx.fill();
+
+// Création du trou central pour obtenir l'effet "donut"
+ctx.beginPath();
+ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
+ctx.fillStyle = "white";
+ctx.fill();
+
+// Ajout de la légende sur le canvas
+ctx.font = "16px Arial";
+// Légende pour la portion rouge
+ctx.fillStyle = "red";
+ctx.fillRect(10, 10, 20, 20);
+ctx.fillStyle = "black";
+ctx.fillText("Consommation electrique avec centrale: " + consoAvecCentrale + " kWh", 35, 25);
+// Légende pour la portion verte
+ctx.fillStyle = "green";
+ctx.fillRect(10, 40, 20, 20);
+ctx.fillStyle = "black";
+ctx.fillText("Electricité photovoltaique utilisée: " + totalAuto + " kWh", 35, 55);
+// Légende pour la portion bleue
+ctx.fillStyle = "blue";
+ctx.fillRect(10, 70, 20, 20);
+ctx.fillStyle = "black";
+ctx.fillText("Electricité photovoltaique revendue: " + totalRev + " kWh", 35, 85);
+
+// Conversion du canvas en image PNG
+const donutImage = donutCanvas.toDataURL("image/png");
+
+// Positionnement du graphique en anneau dans le PDF
+const donutChartWidth = pageWidth - 30; // Largeur du graphique dans le PDF
+const donutChartHeight = (donutCanvas.height * donutChartWidth) / donutCanvas.width; // Respect du ratio
+const yPosDonut = yPosChart + chartHeight + 10; // 10 mm sous le graphique en barre
+pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight);
 
   {
   // -------------------------------
