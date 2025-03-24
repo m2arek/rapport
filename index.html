@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v763</title> 
+  <title>FRH PRO  - v764</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2197,7 +2197,7 @@ if (mapCaptureDataURL) {
   const containerHeight = 3 * 8 + 2; // hauteur calculée sur 3 lignes
   pdf.setLineWidth(0.5);
   pdf.setDrawColor(150);
-  pdf.setFillColor(230, 230, 230);
+  pdf.setFillColor(22, 160, 132);
   pdf.roundedRect(containerX, containerY, containerWidth, containerHeight, 3, 3, "DF");
   
   const boxPadding = 2;
@@ -2446,7 +2446,7 @@ pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight
   const synthContainerHeight = 26;  // Par exemple, 26 mm pour 3 lignes
   pdf.setLineWidth(0.5);
   pdf.setDrawColor(150);
-  pdf.setFillColor(230,230,230);
+  pdf.setFillColor(22, 160, 132);
   pdf.roundedRect(synthContainerX, synthContainerY, synthContainerWidth, synthContainerHeight, 3, 3, "DF");
   
   // Paramètres internes du conteneur
