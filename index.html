@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v768</title> 
+  <title>FRH PRO  - v769</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2375,7 +2375,7 @@ let legendY = 30;                // première ligne de légende
 ctx.fillStyle = "lightcoral";
 ctx.fillRect(legendX, legendY - legendBoxSize / 2, legendBoxSize, legendBoxSize);
 ctx.fillStyle = "black";
-ctx.fillText("Consommation electrique avec centrale: " + consoAvecCentrale + " kWh", legendX + legendBoxSize + 5, legendY);
+ctx.fillText("Consommation electrique avec centrale: " + Math.round(consoAvecCentrale) + " kWh", legendX + legendBoxSize + 5, legendY);
 
 legendY += 40;  // espacement vertical augmenté
 ctx.fillStyle = "lightgreen";
