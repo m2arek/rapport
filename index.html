@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v764</title> 
+  <title>FRH PRO  - v765</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2073,7 +2073,7 @@
 
 // Titre et nom de la société
 pdf.setFontSize(16);
-pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 60, { align: "center" });
+pdf.text("Rapport d'étude Photovoltaïque", pageWidth / 2, 70, { align: "center" });
 const companyName = document.getElementById("companyName")?.value || "";
 pdf.text(companyName, pageWidth / 2, 70, { align: "center" });
 
@@ -2117,7 +2117,7 @@ pdf.text("Longitude: " + document.getElementById("longitudeIrr").value, fieldX2 
 const fieldY3 = fieldY2 + lineHeight + 2;
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(fieldX, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
-pdf.text("Orientation (vrai angle)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
+pdf.text("Orientation (azimut)°: " + document.getElementById("orientation").value, fieldX + 1, fieldY3 + lineHeight - 2);
 pdf.setFillColor(255, 255, 255);
 pdf.roundedRect(fieldX2, fieldY3, fieldWidthHalf, lineHeight, 2, 2, "DF");
 let prodStr = document.getElementById("productible").value;
