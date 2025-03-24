@@ -2473,13 +2473,11 @@ pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight
   const synthRow2Y = synthRow1Y + synthLineHeight + 2;
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
-    let totalEconomies = (reportType === "selection")
-     ? (document.getElementById("totalEconomiesForced") ? document.getElementById("totalEconomiesForced").textContent.trim() : "-")
-     ? (document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-")
-    totalEconomies = String(totalEconomies).replace(/[\u00A0\u202F]/g, " ");
-    pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
- 
-    
+  const totalEconomies = (reportType === "selection")
+  ? (document.getElementById("totalEconomiesForced") ? document.getElementById("totalEconomiesForced").textContent.trim() : "-")
+  : (document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-");
+  pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
+  
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX2, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
   let primeValue = (reportType === "selection")
