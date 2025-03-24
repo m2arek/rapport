@@ -7,7 +7,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v760</title> 
+  <title>FRH PRO  - v761</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2474,9 +2474,9 @@ pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight
   pdf.setFillColor(255,255,255);
   pdf.roundedRect(synthFieldX, synthRow2Y, synthFieldWidthHalf, synthLineHeight, 2, 2, "DF");
     let totalEconomies = (reportType === "selection")
- ? (document.getElementById("totalEconomiesForced") ? document.getElementById("totalEconomiesForced").textContent.trim() : "-")
+     ? (document.getElementById("totalEconomiesForced") ? document.getElementById("totalEconomiesForced").textContent.trim() : "-")
      ? (document.getElementById("totalEconomies") ? document.getElementById("totalEconomies").textContent.trim() : "-")
-    totalEconomies = String(primeValue).replace(/[\u00A0\u202F]/g, " ");
+    totalEconomies = String(totalEconomies).replace(/[\u00A0\u202F]/g, " ");
     pdf.text("Total des économies réalisés sur 20 ans: " + totalEconomies, synthFieldX + 1, synthRow2Y + synthLineHeight - 2);
  
     
