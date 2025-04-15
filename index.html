@@ -755,42 +755,56 @@
       </div><!-- fin tab11 -->
 
       <!-- TAB 12 : Plan de trésorerie -->
-      <div id="tab12" class="tabContent">
-        <div class="tabLogo">
-          <img src="https://raw.githubusercontent.com/m2arek/parallele/main/frh_pro_logo.png" alt="FRH Pro Logo"/>
-          <h2>Plan de trésorerie</h2>
-        </div>
-        <div class="form-section">
-          <h3>Choix du mode de financement et du scénario</h3>
-          <label for="financementMode">Mode de financement :</label>
-          <select id="financementMode" name="financementMode">
-            <option value="banque">Financement bancaire</option>
-            <option value="leasing">Leasing</option>
-          </select>
-          <label for="scenarioPlan">Scénario de préconisation :</label>
-          <select id="scenarioPlan" name="scenarioPlan">
-            <option value="standard">Préconisation standard</option>
-            <option value="selection">Préconisation Sélection</option>
-          </select>
-          <button type="button" id="calculateTresorerieBtn">Calculer le plan de trésorerie</button>
-        </div>
-        <div class="form-section">
-          <h3>Plan de trésorerie (Annuel)</h3>
-          <table id="planTresorerieTable">
-            <thead id="planTresorerieHeader">
-              <tr>
-                <th>Année</th>
-                <th>Recettes d'exploitation<br/>(économies + revente + Prime)</th>
-                <th>Remboursement du prêt<br/>(ou Loyer)</th>
-                <th>Solde net actuel</th>
-              </tr>
-            </thead>
-            <tbody id="planTresorerieBody">
-              <!-- Lignes générées dynamiquement -->
-            </tbody>
-          </table>
-        </div>
-      </div><!-- fin tab12 -->
+<div id="tab12" class="tabContent">
+  <div class="tabLogo">
+    <img src="https://raw.githubusercontent.com/m2arek/parallele/main/frh_pro_logo.png" alt="FRH Pro Logo"/>
+    <h2>Plan de trésorerie</h2>
+  </div>
+  <div class="form-section">
+    <h3>Choix du mode de financement et du scénario</h3>
+    <label for="financementMode">Mode de financement :</label>
+    <select id="financementMode" name="financementMode">
+      <option value="banque">Financement bancaire</option>
+      <option value="leasing">Leasing</option>
+    </select>
+    
+    <!-- Nouveau sélecteur pour choisir le Leaser -->
+    <label for="leasingCompany">Leaser :</label>
+    <select id="leasingCompany" name="leasingCompany">
+      <option value="" disabled selected>Choisir un Leaser</option>
+      <option value="Leasecom">Leasecom</option>
+      <option value="Grenke">Grenke</option>
+    </select>
+    
+    <!-- Nouveau champ pour le nombre de loyers (durée en mois) -->
+    <label for="leaseDuration">Nombre de loyers (mois) :</label>
+    <input type="number" id="leaseDuration" name="leaseDuration" value="72" />
+    
+    <label for="scenarioPlan">Scénario de préconisation :</label>
+    <select id="scenarioPlan" name="scenarioPlan">
+      <option value="standard">Préconisation standard</option>
+      <option value="selection">Préconisation Sélection</option>
+    </select>
+    <button type="button" id="calculateTresorerieBtn">Calculer le plan de trésorerie</button>
+  </div>
+  <div class="form-section">
+    <h3>Plan de trésorerie (Annuel)</h3>
+    <table id="planTresorerieTable">
+      <thead id="planTresorerieHeader">
+        <tr>
+          <th>Année</th>
+          <th>Recettes d'exploitation<br/>(économies + revente + Prime)</th>
+          <th>Remboursement du prêt<br/>(ou Loyer)</th>
+          <th>Solde net actuel</th>
+        </tr>
+      </thead>
+      <tbody id="planTresorerieBody">
+        <!-- Lignes générées dynamiquement -->
+      </tbody>
+    </table>
+  </div>
+</div>
+
 
     </form><!-- fin userForm -->
   </div><!-- fin container -->
@@ -823,15 +837,15 @@
     const primeTarifsData = {
       "France Metropolitaine": {
         "tarif_rachat": [
-          { "min": 0, "max": 3, "tarif": 0.04 },
-          { "min": 4, "max": 9, "tarif": 0.04 },
+          { "min": 0, "max": 3, "tarif": 0.1269 },
+          { "min": 4, "max": 9, "tarif": 0.1269 },
           { "min": 10, "max": 36, "tarif": 0.0761 },
           { "min": 37, "max": 100, "tarif": 0.0761 },
           { "min": 101, "max": 500, "tarif": 0.0761 }
         ],
         "primes": [
-          { "min": 0, "max": 3, "montant_euros_par_wc": 0.08 },
-          { "min": 4, "max": 9, "montant_euros_par_wc": 0.08 },
+          { "min": 0, "max": 3, "montant_euros_par_wc": 0.22 },
+          { "min": 4, "max": 9, "montant_euros_par_wc": 0.16 },
           { "min": 10, "max": 36, "montant_euros_par_wc": 0.19 },
           { "min": 37, "max": 100, "montant_euros_par_wc": 0.10 },
           { "min": 101, "max": 500, "montant_euros_par_wc": 0.10 }
@@ -885,6 +899,16 @@
     window.addEventListener("load", function() {
       const firstTabButton = document.querySelector(".tabNav button");
       if (firstTabButton) { firstTabButton.click(); }
+      // Ajoutez l'écouteur pour le sélecteur de Leaser ici :
+  document.getElementById("leasingCompany").addEventListener("change", function() {
+    const ldInput = document.getElementById("leaseDuration");
+    if (this.value === "Leasecom") {
+      ldInput.value = 72; // Force 72 mois pour Leasecom
+      ldInput.disabled = true;
+    } else {
+      ldInput.disabled = false;
+    }
+  });
       const consumptionTableBody = document.getElementById("consumptionTableBody");
       const months = ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Août","Septembre","Octobre","Novembre","Décembre"];
       const lastRow = consumptionTableBody.querySelector("tr");
@@ -1201,141 +1225,229 @@
     });
     exportPDFBtn.addEventListener("click", generatePdfReport);
 
-    /***************************************************
-     * MODULE : PLAN DE TRÉSORERIE (ONGLET 12)
-     ***************************************************/
-    function calculatePlanTresorerie(){
-      const financementMode = document.getElementById("financementMode").value;
-      const scenarioPlan = document.getElementById("scenarioPlan").value;
-      
-      // Mise à jour dynamique de l'en-tête : le 3ème titre passe à "Loyer" si leasing
-      const headerRow = document.getElementById("planTresorerieHeader").querySelector("tr");
-      if(financementMode === "leasing") {
-        headerRow.cells[2].innerHTML = "Loyer";
-      } else {
-        headerRow.cells[2].innerHTML = "Remboursement du prêt";
+/***************************************************
+ * MODULE : PLAN DE TRÉSORERIE (ONGLET 12)
+ ***************************************************/
+
+/**
+ * Fonction pour obtenir le coefficient Grenke selon le barème.
+ * Le tableau est basé sur :
+ * 
+ * | Montant HT                   | 60 mois | 72 mois         | 84 mois         | 96 mois         |
+ * |------------------------------|--------:|----------------:|----------------:|----------------:|
+ * | 12 501 – 25 000 €            | 2.07    | non available   | non available   | non available   |
+ * | 25 001 – 37 500 €            | 2.06    | 1.77            | non available   | non available   |
+ * | 37 501 – 50 000 €            | 2.05    | 1.76            | 1.56            | non available   |
+ * | 50 001 – 75 000 €            | 2.04    | 1.75            | 1.55            | 1.40            |
+ * | 75 001 – 100 500 €           | 2.03    | 1.74            | 1.54            | 1.39            |
+ * | 100 000 € et +               | 2.02    | 1.73            | 1.53            | 1.38            |
+ * 
+ * Pour les valeurs "non available", la fonction renverra null.
+ */
+ function getGrenkeFactor(amountHT, months) {
+  const baremeGrenke = [
+    { min: 12501, max: 25000,  factor60: 2.07, factor72: null,  factor84: null,  factor96: null },
+    { min: 25001, max: 37500,  factor60: 2.06, factor72: 1.77,  factor84: null,  factor96: null },
+    { min: 37501, max: 50000,  factor60: 2.05, factor72: 1.76,  factor84: 1.56,  factor96: null },
+    { min: 50001, max: 75000,  factor60: 2.04, factor72: 1.75,  factor84: 1.55,  factor96: 1.40 },
+    { min: 75001, max: 100500, factor60: 2.03, factor72: 1.74,  factor84: 1.54,  factor96: 1.39 },
+    { min: 100501, max: Infinity, factor60: 2.02, factor72: 1.73, factor84: 1.53, factor96: 1.38 }
+  ];
+
+  for (let bracket of baremeGrenke) {
+    if (amountHT >= bracket.min && amountHT <= bracket.max) {
+      let factor = null;
+      switch (months) {
+        case 60:
+          factor = bracket.factor60;
+          break;
+        case 72:
+          factor = bracket.factor72;
+          break;
+        case 84:
+          factor = bracket.factor84;
+          break;
+        case 96:
+          factor = bracket.factor96;
+          break;
+        default:
+          factor = null;
       }
-      
-      let autoYear1_val, surplus_val;
+      return factor;
+    }
+  }
+  return null;
+}
+
+
+function calculatePlanTresorerie(){
+  const financementMode = document.getElementById("financementMode").value;
+  const scenarioPlan = document.getElementById("scenarioPlan").value;
+  
+  // Mise à jour dynamique de l'en-tête : le 3ème titre passe à "Loyer" si leasing
+  const headerRow = document.getElementById("planTresorerieHeader").querySelector("tr");
+  if(financementMode === "leasing") {
+    headerRow.cells[2].innerHTML = "Loyer";
+  } else {
+    headerRow.cells[2].innerHTML = "Remboursement du prêt";
+  }
+  
+  let autoYear1_val, surplus_val;
+  if(scenarioPlan === "standard"){
+    autoYear1_val = parseFloat(document.getElementById("monthlyTotalAuto").textContent.replace("€","").trim());
+    surplus_val = parseFloat(document.getElementById("monthlyTotalRevente").textContent.replace("€","").trim());
+  } else {
+    autoYear1_val = parseFloat(document.getElementById("monthlyTotalAutoForced").textContent.replace("€","").trim());
+    surplus_val = parseFloat(document.getElementById("monthlyTotalReventeForced").textContent.replace("€","").trim());
+  }
+  const recettesAnnee1 = autoYear1_val + surplus_val;
+  
+  let installationCostHT = 0;
+  if(scenarioPlan === "standard"){
+    installationCostHT = parseFloat(document.getElementById("coutInstallation").textContent.replace(/[^0-9.]/g,"")) || 0;
+  } else {
+    installationCostHT = parseFloat(document.getElementById("coutInstallationForced").textContent.replace(/[^0-9.]/g,"")) || 0;
+  }
+  
+  // Application de la remise, si renseignée
+  let remise = 0;
+  if(scenarioPlan === "standard"){
+    remise = parseFloat(document.getElementById("remise").value) || 0;
+  } else {
+    remise = parseFloat(document.getElementById("remiseForced").value) || 0;
+  }
+  // Le coût HT effectif est le coût HT moins la remise
+  installationCostHT = installationCostHT - remise;
+  if(installationCostHT < 0) {
+    installationCostHT = 0;
+  }
+  
+  let preconisePower = 0;
+  if(scenarioPlan === "standard"){
+      preconisePower = parseFloat(document.getElementById("puissanceReco").textContent) || 0;
+  } else {
+      preconisePower = parseFloat(document.getElementById("puissanceRecoForced").textContent) || 0;
+  }
+  
+  const inflation = parseFloat(document.getElementById("inflation_estimee").value) || 0;
+  const taux_emprunt = parseFloat(document.getElementById("taux_emprunt").value) || 0;
+  const duree_pret = parseFloat(document.getElementById("duree_pret").value) || 0;
+  const index_leasing = parseFloat(document.getElementById("index_leasing").value) || 0;
+  // Le champ "duree_leasing" est toujours présent pour d'autres références
+  const duree_leasing = parseFloat(document.getElementById("duree_leasing").value) || 0;
+  
+  let annualRepayment = 0;
+  if(financementMode === "banque" && duree_pret > 0){
+    const n = duree_pret * 12;
+    const i = taux_emprunt / 100 / 12;
+    const monthlyPayment = installationCostHT * (i * Math.pow(1+i, n)) / (Math.pow(1+i, n) - 1);
+    annualRepayment = monthlyPayment * 12;
+  }
+  
+  let annualLeasing = 0;
+  if(financementMode === "leasing"){
+    // Nouveaux champs pour le Leasing
+    const leasingCompany = document.getElementById("leasingCompany").value;
+    // Utilisation du champ "leaseDuration" ajouté en HTML pour la durée choisie
+    const chosenLeaseDuration = parseInt(document.getElementById("leaseDuration").value) || 0;
+    
+    if (leasingCompany === "Leasecom") {
+      // Pour Leasecom, on force 72 mois et on applique la logique existante basée sur index_leasing
+      annualLeasing = installationCostHT * (index_leasing/100) * 12;
+    } else if (leasingCompany === "Grenke") {
+      // Pour Grenke, on utilise le tableau de coefficients selon le montant HT et la durée choisie.
+      const factor = getGrenkeFactor(installationCostHT, chosenLeaseDuration);
+      if (factor === null) {
+        alert("La durée de " + chosenLeaseDuration + " mois n'est pas possible pour un montant HT de " 
+              + installationCostHT + " € selon le barème Grenke.");
+        annualLeasing = 0;
+      } else {
+        const monthlyLease = (installationCostHT * factor) / 100;
+        annualLeasing = monthlyLease * 12;
+      }
+    }
+  }
+  
+  let totalRecettes = 0;
+  let totalFinancement = 0;
+  let totalSoldeNet = 0;
+  
+  const tableBody = document.getElementById("planTresorerieBody");
+  tableBody.innerHTML = "";
+  
+  for(let year = 1; year <= 20; year++){
+    const factorYear = (year === 1) ? 1 : Math.pow(1 + inflation/100, year-1);
+    
+    let recettes;
+    if(year === 1){
+      recettes = recettesAnnee1;
+    } else {
+      let projTable;
       if(scenarioPlan === "standard"){
-        autoYear1_val = parseFloat(document.getElementById("monthlyTotalAuto").textContent.replace("€","").trim());
-        surplus_val = parseFloat(document.getElementById("monthlyTotalRevente").textContent.replace("€","").trim());
+        projTable = document.getElementById("preconisationTable");
       } else {
-        autoYear1_val = parseFloat(document.getElementById("monthlyTotalAutoForced").textContent.replace("€","").trim());
-        surplus_val = parseFloat(document.getElementById("monthlyTotalReventeForced").textContent.replace("€","").trim());
+        projTable = document.getElementById("preconisationTableForced");
       }
-      const recettesAnnee1 = autoYear1_val + surplus_val;
-      
-      let installationCostHT = 0;
-      if(scenarioPlan === "standard"){
-        installationCostHT = parseFloat(document.getElementById("coutInstallation").textContent.replace(/[^0-9.]/g,"")) || 0;
-      } else {
-        installationCostHT = parseFloat(document.getElementById("coutInstallationForced").textContent.replace(/[^0-9.]/g,"")) || 0;
-      }
-      
-      let preconisePower = 0;
-      if(scenarioPlan === "standard"){
-          preconisePower = parseFloat(document.getElementById("puissanceReco").textContent) || 0;
-      } else {
-          preconisePower = parseFloat(document.getElementById("puissanceRecoForced").textContent) || 0;
-      }
-      
-      const inflation = parseFloat(document.getElementById("inflation_estimee").value) || 0;
-      const taux_emprunt = parseFloat(document.getElementById("taux_emprunt").value) || 0;
-      const duree_pret = parseFloat(document.getElementById("duree_pret").value) || 0;
-      const index_leasing = parseFloat(document.getElementById("index_leasing").value) || 0;
-      const duree_leasing = parseFloat(document.getElementById("duree_leasing").value) || 0;
-      
-      let annualRepayment = 0;
-      if(financementMode === "banque" && duree_pret > 0){
-        const n = duree_pret * 12;
-        const i = taux_emprunt / 100 / 12;
-        const monthlyPayment = installationCostHT * (i * Math.pow(1+i, n)) / (Math.pow(1+i, n) - 1);
-        annualRepayment = monthlyPayment * 12;
-      }
-      let annualLeasing = 0;
-      if(financementMode === "leasing" && duree_leasing > 0){
-        annualLeasing = installationCostHT * (index_leasing/100) * 12;
-      }
-      
-      let totalRecettes = 0;
-      let totalFinancement = 0;
-      let totalSoldeNet = 0;
-      
-      const tableBody = document.getElementById("planTresorerieBody");
-      tableBody.innerHTML = "";
-      
-      for(let year = 1; year <= 20; year++){
-        const factor = (year === 1) ? 1 : Math.pow(1 + inflation/100, year-1);
-        
-        let recettes;
-        if(year === 1){
-          recettes = recettesAnnee1;
-        } else {
-          let projTable;
+      const rows = projTable.querySelectorAll("tbody tr");
+      if(rows.length >= year){
+        const row = rows[year - 1];
+        const econ = parseFloat(row.cells[2].textContent.replace(/[^0-9.-]+/g,"")) || 0;
+        const revente = parseFloat(row.cells[4].textContent.replace(/[^0-9.-]+/g,"")) || 0;
+        recettes = econ + revente;
+        if(year === 2) {
+          let S = 0;
           if(scenarioPlan === "standard"){
-            projTable = document.getElementById("preconisationTable");
+            S = parseFloat(document.getElementById("puissanceReco").textContent) || 0;
           } else {
-            projTable = document.getElementById("preconisationTableForced");
+            S = parseFloat(document.getElementById("puissanceRecoForced").textContent) || 0;
           }
-          const rows = projTable.querySelectorAll("tbody tr");
-          if(rows.length >= year){
-            const row = rows[year - 1];
-            const econ = parseFloat(row.cells[2].textContent.replace(/[^0-9.-]+/g,"")) || 0;
-            const revente = parseFloat(row.cells[4].textContent.replace(/[^0-9.-]+/g,"")) || 0;
-            recettes = econ + revente;
-            if(year === 2) {
-              let S = 0;
-              if(scenarioPlan === "standard"){
-                S = parseFloat(document.getElementById("puissanceReco").textContent) || 0;
-              } else {
-                S = parseFloat(document.getElementById("puissanceRecoForced").textContent) || 0;
-              }
-              const territory = document.getElementById("territory").value || "France Metropolitaine";
-              const tObj = getTarifRachatAndPrime(S, territory);
-              const primeTotal = Math.round(tObj.primeByWc * (S * 1000));
-              recettes += primeTotal;
-            }
-          } else {
-            recettes = recettesAnnee1;
-          }
+          const territory = document.getElementById("territory").value || "France Metropolitaine";
+          const tObj = getTarifRachatAndPrime(S, territory);
+          const primeTotal = Math.round(tObj.primeByWc * (S * 1000));
+          recettes += primeTotal;
         }
-      
-        let financementCost = 0;
-        if(financementMode === "banque"){
-          financementCost = (year <= duree_pret) ? annualRepayment : 0;
-        } else {
-          financementCost = (year <= (duree_leasing/12)) ? annualLeasing : 0;
-        }
-        
-        const soldeNet = recettes - financementCost;
-        
-        totalRecettes += recettes;
-        totalFinancement += financementCost;
-        totalSoldeNet += soldeNet;
-        
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${year}</td>
-          <td>${recettes.toFixed(2)} €</td>
-          <td>${financementCost.toFixed(2)} €</td>
-          <td>${soldeNet.toFixed(2)} €</td>
-        `;
-        tableBody.appendChild(row);
+      } else {
+        recettes = recettesAnnee1;
       }
-      
-      const totauxRow = document.createElement("tr");
-      totauxRow.innerHTML = `
-        <th>Totaux</th>
-        <th>${totalRecettes.toFixed(2)} €</th>
-        <th>${totalFinancement.toFixed(2)} €</th>
-        <th>${totalSoldeNet.toFixed(2)} €</th>
-      `;
-      tableBody.appendChild(totauxRow);
+    }
+  
+    let financementCost = 0;
+    if(financementMode === "banque"){
+      financementCost = (year <= duree_pret) ? annualRepayment : 0;
+    } else {
+      // Pour Leasing : le contrat est actif pendant (leaseDuration / 12) années.
+      financementCost = (year <= (parseInt(document.getElementById("leaseDuration").value)/12)) ? annualLeasing : 0;
     }
     
-    const calculateTresorerieBtn = document.getElementById("calculateTresorerieBtn");
-    calculateTresorerieBtn.addEventListener("click", calculatePlanTresorerie);
+    const soldeNet = recettes - financementCost;
+    
+    totalRecettes += recettes;
+    totalFinancement += financementCost;
+    totalSoldeNet += soldeNet;
+    
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td>${year}</td>
+      <td>${recettes.toFixed(2)} €</td>
+      <td>${financementCost.toFixed(2)} €</td>
+      <td>${soldeNet.toFixed(2)} €</td>
+    `;
+    tableBody.appendChild(row);
+  }
+  
+  const totauxRow = document.createElement("tr");
+  totauxRow.innerHTML = `
+    <th>Totaux</th>
+    <th>${totalRecettes.toFixed(2)} €</th>
+    <th>${totalFinancement.toFixed(2)} €</th>
+    <th>${totalSoldeNet.toFixed(2)} €</th>
+  `;
+  tableBody.appendChild(totauxRow);
+}
+ 
+const calculateTresorerieBtn = document.getElementById("calculateTresorerieBtn");
+calculateTresorerieBtn.addEventListener("click", calculatePlanTresorerie);
+
 
     /***************************************************
      * 5) SAUVEGARDER / CHARGER JSON
