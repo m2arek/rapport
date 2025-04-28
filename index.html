@@ -1,4 +1,21 @@
 
+Conversation ouverte. 1 message non lu.
+
+Aller au contenu
+Utiliser Gmail avec un lecteur d'écran
+3 sur 39 831
+code multipuissances
+Boîte de réception
+
+Patrick Maarek <p.maarek@gmail.com>
+Pièces jointes
+09:09 (il y a 3 heures)
+À moi
+
+
+ 1 pièce jointe
+  • Analyse effectuée par Gmail
+
 
 
 
@@ -665,6 +682,7 @@
           <label for="forcedPower">Installation choisie (kWc) :</label>
           <input type="number" id="forcedPower" name="forcedPower" value="10" min="1" />
           <button type="button" id="applyForcedPreconisationBtn">Calculer la préconisation choisie</button>
+          <button type="button" id="batchReportBtn">Générer rapport multi-puissances</button>
           <h4>Détails par mois (année 1) - Sélection</h4>
           <table id="preconisationMonthlyTableForced"></table>
           <h4>Graphique (Détails par mois) - Sélection</h4>
@@ -2705,8 +2723,85 @@ pdf.addImage(donutImage, "PNG", 15, yPosDonut, donutChartWidth, donutChartHeight
       pdf.save();
     });
 }
+// ---------------------------------------------------------------
+// BATCH EXPORT PDF – Paysage, de S=10 à Smax, avec nettoyage des "/"
+// ---------------------------------------------------------------
+const batchReportBtn = document.getElementById('batchReportBtn');
+batchReportBtn.addEventListener('click', () => {
+  const maxPower = parseFloat(
+    document.getElementById('puissanceMaxPV').value
+      .replace(/\s|,/g, '')
+  ) || 0;
+
+  // fonction de nettoyage des "/" indésirables
+  const clean = str => (str || '')
+  .replace(/[\s\u00A0\u202F\/]/g, '')
+  .trim();
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('l', 'mm', 'a4');
+
+  const headers = [
+    'S (kWc)',
+    'Conso kWh','Production kWh','Autoconso kWh','Revente kWh',
+    'Facture Sans Centrale','Économies Autoconso','Facture Avec Centrale',
+    'Gains Revente','Total Économies','% Auto prod','% Auto conso','% Revente',
+    'Prime (€)','Remise (€)','Coût inst. (€)','Coût net (€)',
+    'Gain brut (€)','Gain net (€)','ROI (ans)'
+  ];
+  const body = [];
+
+  for (let S = 10; S <= maxPower; S++) {
+    document.getElementById('showKwhColumns').checked = true;
+    document.getElementById('forcedPower').value = S;
+    document.getElementById('applyForcedPreconisationBtn').click();
+
+    // on lit & nettoie chaque total
+    const conso    = clean(document.getElementById('monthlySumKwhConsoForced')?.textContent||'-');
+    const prod     = clean(document.getElementById('monthlySumProductionForced')?.textContent||'-');
+    const autoKwh  = clean(document.getElementById('monthlySumKwhAutoForced')?.textContent||'-');
+    const revKwh   = clean(document.getElementById('monthlySumKwhReventeForced')?.textContent||'-');
+    const sansPv   = clean(document.getElementById('monthlyTotalSansPvForced').textContent);
+    const ecoAuto  = clean(document.getElementById('monthlyTotalAutoForced').textContent);
+    const avecPv   = clean(document.getElementById('monthlyTotalAvecPvForced').textContent);
+    const gainsRev = clean(document.getElementById('monthlyTotalReventeForced').textContent);
+    const totalEco = clean(document.getElementById('monthlyTotalEconomiesForced').textContent);
+    const pctProd  = clean(document.getElementById('monthlyTotalAutoProdPercForced').textContent);
+    const pctConso = clean(document.getElementById('monthlyTotalAutoConsoPercForced').textContent);
+    const pctRev   = clean(document.getElementById('monthlyTotalRevPercForced').textContent);
+
+    const prime    = clean(document.getElementById('primeValueForced').textContent);
+    const remise   = clean(document.getElementById('remiseForced').value);
+    const costInst = clean(document.getElementById('coutInstallationForced').textContent);
+    const costNet  = clean(document.getElementById('coutReelInstallationForced').textContent);
+    const gainBrut = clean(document.getElementById('gainSansInvForced').textContent);
+    const gainNet  = clean(document.getElementById('gainAvecInvForced').textContent);
+    const roi      = clean(document.getElementById('roiResultForced').textContent);
+
+    body.push([
+      S.toFixed(1), conso, prod, autoKwh, revKwh,
+      sansPv, ecoAuto, avecPv, gainsRev, totalEco,
+      pctProd, pctConso, pctRev,
+      prime, remise, costInst, costNet, gainBrut, gainNet, roi
+    ]);
+  }
+
+  pdf.autoTable({
+    head: [headers],
+    body: body,
+    startY: 20,
+    margin: { left: 10, right: 10 },
+    styles:       { fontSize: 6, cellPadding: 1 },
+    headStyles:   { fillColor: [22, 160, 133], textColor: 255 }
+  });
+
+  pdf.save('Rapport_multi_puissances.pdf');
+});
+
 
 
   </script>
 </body>
 </html>
+code multipuissances.txt
+Affichage de code multipuissances.txt en cours...
