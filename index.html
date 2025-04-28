@@ -1,20 +1,4 @@
 
-Conversation ouverte. 1 message non lu.
-
-Aller au contenu
-Utiliser Gmail avec un lecteur d'écran
-3 sur 39 831
-code multipuissances
-Boîte de réception
-
-Patrick Maarek <p.maarek@gmail.com>
-Pièces jointes
-09:09 (il y a 3 heures)
-À moi
-
-
- 1 pièce jointe
-  • Analyse effectuée par Gmail
 
 
 
@@ -24,7 +8,7 @@ Pièces jointes
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>FRH PRO  - v800</title> 
+  <title>FRH PRO  - v900</title> 
 
   <!-- (1) Leaflet CSS -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css"/>
@@ -2735,8 +2719,8 @@ batchReportBtn.addEventListener('click', () => {
 
   // fonction de nettoyage des "/" indésirables
   const clean = str => (str || '')
-  .replace(/[\s\u00A0\u202F\/]/g, '')
-  .trim();
+    .replace(/[\s\u00A0\u202F\/]/g, '')
+    .trim();
 
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF('l', 'mm', 'a4');
@@ -2752,20 +2736,25 @@ batchReportBtn.addEventListener('click', () => {
   const body = [];
 
   for (let S = 10; S <= maxPower; S++) {
+    // on force l'affichage des colonnes kWh et on recalcule pour S
     document.getElementById('showKwhColumns').checked = true;
     document.getElementById('forcedPower').value = S;
     document.getElementById('applyForcedPreconisationBtn').click();
 
-    // on lit & nettoie chaque total
-    const conso    = clean(document.getElementById('monthlySumKwhConsoForced')?.textContent||'-');
-    const prod     = clean(document.getElementById('monthlySumProductionForced')?.textContent||'-');
-    const autoKwh  = clean(document.getElementById('monthlySumKwhAutoForced')?.textContent||'-');
-    const revKwh   = clean(document.getElementById('monthlySumKwhReventeForced')?.textContent||'-');
-    const sansPv   = clean(document.getElementById('monthlyTotalSansPvForced').textContent);
-    const ecoAuto  = clean(document.getElementById('monthlyTotalAutoForced').textContent);
-    const avecPv   = clean(document.getElementById('monthlyTotalAvecPvForced').textContent);
-    const gainsRev = clean(document.getElementById('monthlyTotalReventeForced').textContent);
-    const totalEco = clean(document.getElementById('monthlyTotalEconomiesForced').textContent);
+    // on lit & nettoie chaque total mensuel (année 1)
+    const conso    = clean(document.getElementById('monthlySumKwhConsoForced')?.textContent || '-');
+    const prod     = clean(document.getElementById('monthlySumProductionForced')?.textContent || '-');
+    const autoKwh  = clean(document.getElementById('monthlySumKwhAutoForced')?.textContent || '-');
+    const revKwh   = clean(document.getElementById('monthlySumKwhReventeForced')?.textContent || '-');
+
+    // on lit & nettoie maintenant les **totaux 20 ans** de la table Projection
+    const sansPv   = clean(document.getElementById('totalSansPvForced').textContent);
+    const ecoAuto  = clean(document.getElementById('totalAutoForced').textContent);
+    const avecPv   = clean(document.getElementById('totalAvecPvForced').textContent);
+    const gainsRev = clean(document.getElementById('totalReventeForced').textContent);
+    const totalEco = clean(document.getElementById('totalEconomiesForced').textContent);
+
+    // le reste
     const pctProd  = clean(document.getElementById('monthlyTotalAutoProdPercForced').textContent);
     const pctConso = clean(document.getElementById('monthlyTotalAutoConsoPercForced').textContent);
     const pctRev   = clean(document.getElementById('monthlyTotalRevPercForced').textContent);
@@ -2791,8 +2780,8 @@ batchReportBtn.addEventListener('click', () => {
     body: body,
     startY: 20,
     margin: { left: 10, right: 10 },
-    styles:       { fontSize: 6, cellPadding: 1 },
-    headStyles:   { fillColor: [22, 160, 133], textColor: 255 }
+    styles:     { fontSize: 6, cellPadding: 1 },
+    headStyles: { fillColor: [22, 160, 133], textColor: 255 }
   });
 
   pdf.save('Rapport_multi_puissances.pdf');
@@ -2800,8 +2789,8 @@ batchReportBtn.addEventListener('click', () => {
 
 
 
+
   </script>
 </body>
 </html>
-code multipuissances.txt
-Affichage de code multipuissances.txt en cours...
+
